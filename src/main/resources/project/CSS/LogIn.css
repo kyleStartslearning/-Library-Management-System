@@ -1,0 +1,76 @@
+.root {
+    -fx-font-family: "Arial";
+}
+
+/* Common Button Styles */
+.button {
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.button:hover {
+    -fx-background-color: #0478cc !important;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 4) !important;
+    -fx-cursor: hand;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Login Button */
+#loginButton {
+    -fx-background-color: #0598ff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
+}
+
+#loginButton:hover {
+    -fx-background-color: #0478cc;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 0, 3);
+}
+
+/* Create Account Button */
+#createAccButton {
+    -fx-background-color: #42B72A;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
+}
+
+#createAccButton:hover {
+    -fx-background-color: #389E26;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 0, 3);
+}
+
+/* Icons */
+.icon {
+    -fx-fill: #0598ff;
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.icon:hover {
+    -fx-fill: #0478cc !important;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 2) !important;
+    -fx-cursor: hand;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Line Separator */
+.separator-line {
+    -fx-stroke: #0598ff;
+    -fx-stroke-width: 2;
+    -fx-opacity: 0.5;
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.separator-line:hover {
+    -fx-stroke: #0478cc !important;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2) !important;
+    -fx-cursor: hand;
+    -fx-opacity: 0.8;
+    -fx-stroke-width: 2.5;
+}
