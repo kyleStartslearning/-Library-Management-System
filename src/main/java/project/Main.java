@@ -13,10 +13,6 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        System.out.println("Hello Try to commit");
-        System.out.println("Testing 1");
-        System.out.println("Testing 2");
-
         try {
             // Initialize database
             Connect dbConnection = Connect.getInstance();
