@@ -12,6 +12,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+
+        System.out.println("Hello Try to commit");
         try {
             // Initialize database
             Connect dbConnection = Connect.getInstance();
