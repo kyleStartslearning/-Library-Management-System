@@ -5,6 +5,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import project.UtilityClass;
+import project.Databases.Admin;
 
 public class LogInController {
 
@@ -26,10 +28,22 @@ public class LogInController {
     @FXML
     void BTNCreate(ActionEvent event) {
 
+
     }
 
     @FXML
     void BTNlogin(ActionEvent event) {
+        String email = UserField.getText().trim();
+        String password = PasswordField.getText();
+
+        if (email.isEmpty() && password.isEmpty()) {
+                UtilityClass.ShowError("Error", "Please Fill in all fields");
+        } else {
+            if (Admin.authenticateAdmin(email,password)) {
+                
+            }
+        }
+
 
     }
 

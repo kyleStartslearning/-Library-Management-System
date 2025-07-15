@@ -12,7 +12,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
+ 
         try {
             // Initialize database
             Connect dbConnection = Connect.getInstance();
