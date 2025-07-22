@@ -36,15 +36,27 @@ public class LogInController {
         String email = UserField.getText().trim();
         String password = PasswordField.getText();
 
-        if (email.isEmpty() && password.isEmpty()) {
-                UtilityClass.ShowError("Error", "Please Fill in all fields");
-        } else {
-            if (Admin.authenticateAdmin(email,password)) {
-                
-            }
+        if (email.isEmpty() || password.isEmpty()) {
+            UtilityClass.ShowError("Error", "Please Fill in all fields");
+            return;
         }
 
-
+        try {
+            Admin admin = Admin.authenticateAdmin(email, password);
+            if (admin != null) {
+                // Authentication successful - navigate to admin dashboard
+                UtilityClass.currentUserEmail = email;
+                UtilityClass.ShowInformation("Success", "Welcome back, " + admin.getName() + "!");
+                
+                // Fixed: Changed AdminMain.fmxl to AdminMain.fxml
+                UtilityClass.switchScene(event, "AdminMain.fxml", "AdminMain.css");
+            } else {
+                // Authentication failed
+                UtilityClass.ShowError("Login Failed", "Invalid email or password");
+            }
+        } catch (Exception e) {
+            UtilityClass.ShowError("Error", "Login error: " + e.getMessage());
+        }
     }
 
     @FXML

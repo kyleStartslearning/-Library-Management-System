@@ -1,0 +1,14 @@
+.button {
+    -fx-background-color: white;
+    -fx-text-fill: #0598ff;
+    -fx-background-radius: 8px;
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(to right, #ffffff, #e6f3ff);
+    -fx-effect: dropshadow(gaussian, rgba(5,152,255,0.2), 8, 0, 0, 2);
+    -fx-cursor: hand;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}

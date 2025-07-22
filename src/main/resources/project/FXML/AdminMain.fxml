@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.controllers.AdminController">
+    
+    <!-- Left Sidebar -->
+    <left>
+        <VBox prefWidth="250.0" spacing="5" style="-fx-background-color: #0598ff;">
+            <padding>
+                <Insets bottom="20" left="15" right="15" top="20" />
+            </padding>
+            
+            <!-- Admin Profile Section -->
+            <VBox alignment="CENTER" spacing="10" style="-fx-padding: 0 0 25 0;">
+                <FontAwesomeIconView fill="WHITE" glyphName="USER" size="45" translateY="-65" />
+                <Label text="Welcome Admin" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="20.0" />
+                    </font>
+                </Label>
+            </VBox>
+            
+            <!-- Navigation Buttons -->
+            <VBox spacing="8">
+                <!-- Books Section -->
+                <Label style="-fx-opacity: 0.8;" text="BOOKS MANAGEMENT" textFill="white">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                    <padding>
+                        <Insets bottom="5" left="5" />
+                    </padding>
+                </Label>
+                
+                <Button mnemonicParsing="false" onAction="#BTNaddBooks" prefHeight="40" prefWidth="220" style="-fx-background-color: white; -fx-background-radius: 8;">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <FontAwesomeIconView fill="#0598ff" glyphName="PLUS_CIRCLE" size="18" />
+                            <Label text="Add Books" textFill="#0598ff">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font>
+                            </Label>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button mnemonicParsing="false" onAction="#BTNremoveBooks" prefHeight="40" prefWidth="220" style="-fx-background-color: white; -fx-background-radius: 8;">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <FontAwesomeIconView fill="#0598ff" glyphName="MINUS_CIRCLE" size="18" />
+                            <Label text="Remove Books" textFill="#0598ff">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font>
+                            </Label>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <!-- Members Section -->
+                <Label style="-fx-opacity: 0.8;" text="MEMBERS MANAGEMENT" textFill="white">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                    <padding>
+                        <Insets bottom="5" left="5" top="15" />
+                    </padding>
+                </Label>
+
+                <Button mnemonicParsing="false" onAction="#BTNaddMembers" prefHeight="40" prefWidth="220" style="-fx-background-color: white; -fx-background-radius: 8;">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <FontAwesomeIconView fill="#0598ff" glyphName="USER_PLUS" size="18" />
+                            <Label text="Add Members" textFill="#0598ff">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font>
+                            </Label>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button mnemonicParsing="false" onAction="#BTNremoveMembers" prefHeight="40" prefWidth="220" style="-fx-background-color: white; -fx-background-radius: 8;">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <FontAwesomeIconView fill="#0598ff" glyphName="USER_TIMES" size="18" />
+                            <Label text="Remove Members" textFill="#0598ff">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font>
+                            </Label>
+                        </HBox>
+                    </graphic>
+                </Button>
+                
+                <!-- Logout at bottom -->
+                <Region VBox.vgrow="ALWAYS" />
+                <Button mnemonicParsing="false" onAction="#BTNlogOut" prefHeight="40" prefWidth="220" style="-fx-background-color: white; -fx-background-radius: 8;">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <FontAwesomeIconView fill="#0598ff" glyphName="SIGN_OUT" size="18" />
+                            <Label text="Logout" textFill="#0598ff">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font>
+                            </Label>
+                        </HBox>
+                    </graphic>
+                </Button>
+            </VBox>
+        </VBox>
+    </left>
+    
+    <!-- Main Content Area -->
+    <center>
+        <AnchorPane style="-fx-background-color: linear-gradient(to bottom right, #ffffff, #e6f3ff, #cce6ff);">
+            <VBox spacing="20" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="20.0">
+                
+                <!-- Header -->
+                <Label text="Library Management System" textFill="#0598ff">
+                    <font>
+                        <Font name="System Bold" size="32.0" />
+                    </font>
+                </Label>
+                
+                <!-- Quick Stats -->
+                <HBox spacing="20">
+                    <VBox style="-fx-background-color: white; -fx-background-radius: 15;                            -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" styleClass="stat-card">
+                        <FontAwesomeIconView fill="#0598ff" glyphName="BOOK" size="30" />
+                        <Label text="Total Books" textFill="#666666">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="totalBooksLabel" text="0" textFill="#0598ff">
+                            <font>
+                                <Font name="System Bold" size="24.0" />
+                            </font>
+                        </Label>
+                    </VBox>
+                    
+                    <VBox style="-fx-background-color: white; -fx-background-radius: 15;                            -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" styleClass="stat-card">
+                        <FontAwesomeIconView fill="#0598ff" glyphName="USERS" size="30" />
+                        <Label text="Active Members" textFill="#666666">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="totalMembersLabel" text="0" textFill="#0598ff">
+                            <font>
+                                <Font name="System Bold" size="24.0" />
+                            </font>
+                        </Label>
+                    </VBox>
+                    
+                    <VBox style="-fx-background-color: white; -fx-background-radius: 15;                            -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" styleClass="stat-card">
+                        <FontAwesomeIconView fill="#0598ff" glyphName="EXCHANGE" size="30" />
+                        <Label text="Books Borrowed" textFill="#666666">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="borrowedBooksLabel" text="0" textFill="#0598ff">
+                            <font>
+                                <Font name="System Bold" size="24.0" />
+                            </font>
+                        </Label>
+                    </VBox>
+                </HBox>
+                
+                <!-- Quick Actions -->
+                <GridPane hgap="20" vgap="20">
+                    <Button mnemonicParsing="false" onAction="#BTNsearchBooks" prefHeight="120" prefWidth="280" style="-fx-background-color: white; -fx-background-radius: 15;                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <graphic>
+                            <VBox alignment="CENTER" spacing="10">
+                                <FontAwesomeIconView fill="#0598ff" glyphName="SEARCH" size="40" />
+                                <Label text="Search Books" textFill="#0598ff">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </graphic>
+                    </Button>
+                    
+                    <Button mnemonicParsing="false" onAction="#BTNsearchMembers" prefHeight="120" prefWidth="280" style="-fx-background-color: white; -fx-background-radius: 15;                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <graphic>
+                            <VBox alignment="CENTER" spacing="10">
+                                <FontAwesomeIconView fill="#0598ff" glyphName="SEARCH_PLUS" size="40" />
+                                <Label text="Search Members" textFill="#0598ff">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </graphic>
+                    </Button>
+                    
+                    <Button mnemonicParsing="false" onAction="#BTNviewAllBooks" prefHeight="120" prefWidth="280" style="-fx-background-color: white; -fx-background-radius: 15;                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <graphic>
+                            <VBox alignment="CENTER" spacing="10">
+                                <FontAwesomeIconView fill="#0598ff" glyphName="BOOK" size="40" />
+                                <Label text="View All Books" textFill="#0598ff">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </graphic>
+                    </Button>
+                    
+                    <Button mnemonicParsing="false" onAction="#BTNviewBorrowers" prefHeight="120" prefWidth="280" style="-fx-background-color: white; -fx-background-radius: 15;                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <graphic>
+                            <VBox alignment="CENTER" spacing="10">
+                                <FontAwesomeIconView fill="#0598ff" glyphName="USERS" size="40" />
+                                <Label text="View Borrowers" textFill="#0598ff">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </graphic>
+                    </Button>
+               <columnConstraints>
+                  <ColumnConstraints />
+                  <ColumnConstraints />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+                </GridPane>
+            </VBox>
+        </AnchorPane>
+    </center>
+</BorderPane>
