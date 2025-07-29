@@ -44,11 +44,11 @@ public class LogInController {
         try {
             Admin admin = Admin.authenticateAdmin(email, password);
             if (admin != null) {
-                // Authentication successful - navigate to admin dashboard
+                
                 UtilityClass.currentUserEmail = email;
                 UtilityClass.ShowInformation("Success", "Welcome back, " + admin.getName() + "!");
                 
-                // Fixed: Changed AdminMain.fmxl to AdminMain.fxml
+                
                 UtilityClass.switchScene(event, "AdminMain.fxml", "AdminMain.css");
             } else {
                 // Authentication failed
