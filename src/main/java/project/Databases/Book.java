@@ -5,6 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
+
 
 public class Book {
     private int id;
@@ -65,77 +69,143 @@ public class Book {
      * Add a new book to the database - can be added by admin or member
      */
     public static boolean addBook(String title, String author, int copies, String userEmail, String userType) {
-        Connect dbConnection = Connect.getInstance();
-        Connection connection = dbConnection.getConnection();
-        
         String query = "INSERT INTO books (title, author, total_copies, available_copies, added_by_email, added_by_type) VALUES (?, ?, ?, ?, ?, ?)";
         
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, title);
-            stmt.setString(2, author);
-            stmt.setInt(3, copies);
-            stmt.setInt(4, copies);
-            stmt.setString(5, userEmail);
-            stmt.setString(6, userType);
-            
-            int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;
-            
-        } catch (SQLException e) {
-            System.err.println("Error adding book: " + e.getMessage());
-            return false;
-        }
+        return Connect.executeUpdate(query, title, author, copies, copies, userEmail, userType);
     }
     
     /**
-     * Get all books with user information
+     * Get all books as a list of Book objects
      */
-    public static ResultSet getBooksWithUserInfo() {
-        Connect dbConnection = Connect.getInstance();
-        Connection connection = dbConnection.getConnection();
+    public static List<Book> getAllBooks() {
+        String query = "SELECT * FROM books ORDER BY created_at DESC";
         
-        String query = "SELECT * FROM books_with_user_info ORDER BY created_at DESC";
-        
-        try {
-            PreparedStatement stmt = connection.prepareStatement(query);
-            return stmt.executeQuery();
-        } catch (SQLException e) {
-            System.err.println("Error retrieving books with user info: " + e.getMessage());
-            return null;
-        }
+        return Connect.executeQuery(query, rs -> {
+            List<Book> books = new ArrayList<>();
+            try {
+                while (rs.next()) {
+                    Book book = new Book();
+                    book.setId(rs.getInt("id"));
+                    book.setTitle(rs.getString("title"));
+                    book.setAuthor(rs.getString("author"));
+                    book.setTotalCopies(rs.getInt("total_copies"));
+                    book.setAvailableCopies(rs.getInt("available_copies"));
+                    book.setBorrowCount(rs.getInt("borrow_count"));
+                    book.setAddedByEmail(rs.getString("added_by_email"));
+                    book.setAddedByType(rs.getString("added_by_type"));
+                    book.setCreatedAt(rs.getTimestamp("created_at"));
+                    books.add(book);
+                }
+            } catch (SQLException e) {
+                System.err.println("Error processing book results: " + e.getMessage());
+            }
+            return books;
+        });
     }
     
     /**
      * Check if user exists and determine their type
      */
     public static String getUserType(String email) {
-        Connect dbConnection = Connect.getInstance();
-        Connection connection = dbConnection.getConnection();
-        
         // Check if admin
-        String adminQuery = "SELECT COUNT(*) FROM admins WHERE email = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(adminQuery)) {
-            stmt.setString(1, email);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next() && rs.getInt(1) > 0) {
-                return "admin";
-            }
-        } catch (SQLException e) {
-            System.err.println("Error checking admin: " + e.getMessage());
-        }
+        int adminCount = Connect.executeCount("SELECT COUNT(*) FROM admins WHERE email = ?", email);
+        if (adminCount > 0) return "admin";
         
         // Check if member
-        String memberQuery = "SELECT COUNT(*) FROM members WHERE email = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(memberQuery)) {
-            stmt.setString(1, email);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next() && rs.getInt(1) > 0) {
-                return "member";
-            }
-        } catch (SQLException e) {
-            System.err.println("Error checking member: " + e.getMessage());
-        }
+        int memberCount = Connect.executeCount("SELECT COUNT(*) FROM members WHERE email = ?", email);
+        if (memberCount > 0) return "member";
         
         return null; // User not found
+    }
+    
+    /**
+     * Search books by title or author
+     */
+    public static List<Book> searchBooks(String searchTerm) {
+        String query = "SELECT * FROM books WHERE title LIKE ? OR author LIKE ? ORDER BY title";
+        String searchPattern = "%" + searchTerm + "%";
+        
+        return Connect.executeQuery(query, rs -> {
+            List<Book> books = new ArrayList<>();
+            try {
+                while (rs.next()) {
+                    Book book = new Book();
+                    book.setId(rs.getInt("id"));
+                    book.setTitle(rs.getString("title"));
+                    book.setAuthor(rs.getString("author"));
+                    book.setTotalCopies(rs.getInt("total_copies"));
+                    book.setAvailableCopies(rs.getInt("available_copies"));
+                    books.add(book);
+                }
+            } catch (SQLException e) {
+                System.err.println("Error processing search results: " + e.getMessage());
+            }
+            return books;
+        }, searchPattern, searchPattern);
+    }
+    
+    /**
+     * Get book by ID
+     */
+    public static Book getBookById(int id) {
+        String query = "SELECT * FROM books WHERE id = ?";
+        
+        return Connect.executeQuery(query, rs -> {
+            try {
+                if (rs.next()) {
+                    Book book = new Book();
+                    book.setId(rs.getInt("id"));
+                    book.setTitle(rs.getString("title"));
+                    book.setAuthor(rs.getString("author"));
+                    book.setTotalCopies(rs.getInt("total_copies"));
+                    book.setAvailableCopies(rs.getInt("available_copies"));
+                    book.setBorrowCount(rs.getInt("borrow_count"));
+                    book.setAddedByEmail(rs.getString("added_by_email"));
+                    book.setAddedByType(rs.getString("added_by_type"));
+                    return book;
+                }
+            } catch (SQLException e) {
+                System.err.println("Error getting book by ID: " + e.getMessage());
+            }
+            return null;
+        }, id);
+    }
+    
+    /**
+     * Update book availability when borrowed/returned
+     */
+    public static boolean updateAvailableCopies(int bookId, int newAvailableCount) {
+        String query = "UPDATE books SET available_copies = ? WHERE id = ?";
+        return Connect.executeUpdate(query, newAvailableCount, bookId);
+    }
+    
+    /**
+     * Delete a book by ID
+     */
+    public static boolean deleteBook(int bookId) {
+        String query = "DELETE FROM books WHERE id = ?";
+        return Connect.executeUpdate(query, bookId);
+    }
+    
+    /**
+     * Check if a book exists by title and author
+     */
+    public static boolean bookExists(String title, String author) {
+        int count = Connect.executeCount("SELECT COUNT(*) FROM books WHERE title = ? AND author = ?", title, author);
+        return count > 0;
+    }
+    
+    /**
+     * Get total number of books
+     */
+    public static int getTotalBookCount() {
+        return Connect.executeCount("SELECT COUNT(*) FROM books");
+    }
+    
+    /**
+     * Get total number of available copies
+     */
+    public static int getTotalAvailableCopies() {
+        return Connect.executeCount("SELECT SUM(available_copies) FROM books");
     }
 }

@@ -3,8 +3,11 @@ package project.Databases;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.function.Function;
 
 public class Connect {
     private static final String DB_URL = "jdbc:sqlite:My.db";
@@ -234,5 +237,94 @@ public class Connect {
         } catch (SQLException e) {
             System.err.println("Error closing database connection: " + e.getMessage());
         }
+    }
+    
+    /**
+     * Static utility method to get database connection quickly
+     */
+    public static Connection getDBConnection() {
+        return Connect.getInstance().getConnection();
+    }
+    
+    /**
+     * Execute an update/insert/delete query with parameters
+     * @param query SQL query with ? placeholders
+     * @param params Parameters to bind to the query
+     * @return true if operation was successful
+     */
+    public static boolean executeUpdate(String query, Object... params) {
+        try (Connection connection = getDBConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            
+            // Set parameters
+            for (int i = 0; i < params.length; i++) {
+                stmt.setObject(i + 1, params[i]);
+            }
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Database update error: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Execute a query and process results with a lambda function
+     * @param query SQL query with ? placeholders
+     * @param processor Function to process the ResultSet
+     * @param params Parameters to bind to the query
+     * @return Result from the processor function
+     */
+    public static <T> T executeQuery(String query, Function<ResultSet, T> processor, Object... params) {
+        try (Connection connection = getDBConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            
+            // Set parameters
+            for (int i = 0; i < params.length; i++) {
+                stmt.setObject(i + 1, params[i]);
+            }
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                return processor.apply(rs);
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Database query error: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Execute a simple query that returns a single value
+     * @param query SQL query
+     * @param params Parameters
+     * @return First column of first row as String, or null
+     */
+    public static String executeScalar(String query, Object... params) {
+        return executeQuery(query, rs -> {
+            try {
+                return rs.next() ? rs.getString(1) : null;
+            } catch (SQLException e) {
+                return null;
+            }
+        }, params);
+    }
+    
+    /**
+     * Execute a query that returns a count
+     * @param query SQL query that returns a count
+     * @param params Parameters
+     * @return Count as integer, or 0 if error
+     */
+    public static int executeCount(String query, Object... params) {
+        return executeQuery(query, rs -> {
+            try {
+                return rs.next() ? rs.getInt(1) : 0;
+            } catch (SQLException e) {
+                return 0;
+            }
+        }, params);
     }
 }
