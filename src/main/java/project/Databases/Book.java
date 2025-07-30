@@ -69,9 +69,49 @@ public class Book {
      * Add a new book to the database - can be added by admin or member
      */
     public static boolean addBook(String title, String author, int copies, String userEmail, String userType) {
+        // First check if book already exists
+        if (bookExists(title, author)) {
+            System.err.println("Book already exists: " + title + " by " + author);
+            return false;
+        }
+        
+        // Validate inputs
+        if (title == null || title.trim().isEmpty()) {
+            System.err.println("Book title cannot be empty");
+            return false;
+        }
+        if (author == null || author.trim().isEmpty()) {
+            System.err.println("Author name cannot be empty");
+            return false;
+        }
+        if (copies <= 0) {
+            System.err.println("Number of copies must be greater than 0");
+            return false;
+        }
+        if (userEmail == null || userEmail.trim().isEmpty()) {
+            System.err.println("User email cannot be empty");
+            return false;
+        }
+        if (userType == null || (!userType.equals("admin") && !userType.equals("member"))) {
+            System.err.println("User type must be 'admin' or 'member'");
+            return false;
+        }
+        
         String query = "INSERT INTO books (title, author, total_copies, available_copies, added_by_email, added_by_type) VALUES (?, ?, ?, ?, ?, ?)";
         
-        return Connect.executeUpdate(query, title, author, copies, copies, userEmail, userType);
+        try {
+            boolean result = Connect.executeUpdate(query, title, author, copies, copies, userEmail, userType);
+            if (result) {
+                System.out.println("Book added successfully: " + title + " by " + author);
+            } else {
+                System.err.println("Failed to add book to database");
+            }
+            return result;
+        } catch (Exception e) {
+            System.err.println("Error adding book: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
     
     /**

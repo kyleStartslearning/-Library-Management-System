@@ -115,7 +115,7 @@ public class Connect {
             
             // Insert default admin accounts
             stmt.execute("INSERT OR IGNORE INTO admins (email, name, password, age, phone_number) VALUES " +
-                "('admin@library.com', 'Admin', 'admin123', 30, '09000000000'), " +
+                "('admin', 'Admin', 'admin123', 30, '09000000000'), " +
                 "('system@library.com', 'System', 'sys123', 25, '09111111111')");
             
             // Insert default members

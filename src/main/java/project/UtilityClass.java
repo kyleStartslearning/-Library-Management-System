@@ -49,7 +49,6 @@ public class UtilityClass {
 
     public static void switchScene(ActionEvent event, String fxmlFile, String cssFile) throws IOException {
         try {
-            // Use correct path format for resources
             FXMLLoader loader = new FXMLLoader(UtilityClass.class.getResource("/project/FXML/" + fxmlFile));
             Parent root = loader.load();
             Scene scene = new Scene(root);
@@ -68,13 +67,36 @@ public class UtilityClass {
     }
 
     /**
+     * Data class to hold book information from the dialog
+     */
+    public static class BookData {
+        public String title;
+        public String author;
+        public int copies;
+        
+        public BookData(String title, String author, int copies) {
+            this.title = title;
+            this.author = author;
+            this.copies = copies;
+        }
+    }
+
+    /**
      * Show dialog for adding a new book
      * @return BookData object if user confirms, null if cancelled
      */
     public static BookData ShowAddBookDialog() {
         Dialog<BookData> dialog = new Dialog<>();
-        dialog.setTitle("Add New Book");
+        
+        // Remove title and X button, but KEEP headerText
+        dialog.setTitle(null);
         dialog.setHeaderText("Enter book information:");
+        
+        // Make the dialog undecorated (removes title bar and X button)
+        dialog.setOnShowing(e -> {
+            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+        });
         
         // Set button types
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -97,19 +119,17 @@ public class UtilityClass {
         copiesField.setPromptText("Number of Copies");
         copiesField.setPrefWidth(250);
         
-        // Show who is adding the book
         String userInfo = currentUserEmail != null ? currentUserEmail : "admin@library.com";
         Label adminLabel = new Label("Adding as: " + userInfo + " (ADMIN)");
         adminLabel.setStyle("-fx-text-fill: #0598ff; -fx-font-size: 12px; -fx-font-weight: bold;");
         
-        // Add validation for numbers only
         copiesField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 copiesField.setText(newValue.replaceAll("[^\\d]", ""));
             }
         });
         
-        grid.add(adminLabel, 0, 0, 2, 1);  // Span across both columns
+        grid.add(adminLabel, 0, 0, 2, 1);
         grid.add(new Label("Title:"), 0, 1);
         grid.add(titleField, 1, 1);
         grid.add(new Label("Author:"), 0, 2);
@@ -119,50 +139,101 @@ public class UtilityClass {
         
         dialog.getDialogPane().setContent(grid);
         
-        // Focus on title field
+        dialog.getDialogPane().setStyle(
+            "-fx-border-color: #0598ff; " +
+            "-fx-border-width: 2px; " +
+            "-fx-border-radius: 5px; " +
+            "-fx-background-radius: 5px;"
+        );
+        
         titleField.requestFocus();
         
-        // Convert result to BookData when OK is clicked
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == ButtonType.OK) {
-                String title = titleField.getText().trim();
-                String author = authorField.getText().trim();
-                String copiesText = copiesField.getText().trim();
-                
-                if (title.isEmpty() || author.isEmpty() || copiesText.isEmpty()) {
-                    ShowError("Validation Error", "All fields are required!");
-                    return null;
-                }
-                
+        javafx.scene.control.Button okButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        
+        okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+            String title = titleField.getText().trim();
+            String author = authorField.getText().trim();
+            String copiesText = copiesField.getText().trim();
+            
+            if (title.isEmpty()) {
+                ShowError("Validation Error", "Book title is required!");
+                event.consume();
+            } else if (author.isEmpty()) {
+                ShowError("Validation Error", "Author name is required!");
+                event.consume();
+            } else if (copiesText.isEmpty()) {
+                ShowError("Validation Error", "Number of copies is required!");
+                event.consume();
+            } else {
                 try {
                     int copies = Integer.parseInt(copiesText);
                     if (copies <= 0) {
                         ShowError("Validation Error", "Number of copies must be greater than 0!");
-                        return null;
+                        event.consume();
+                    } else {
+                        // Show confirmation dialog
+                        boolean confirmed = ShowBookConfirmationDialog(title, author, copies);
+                        if (!confirmed) {
+                            event.consume(); // Stay in the dialog if not confirmed
+                        }
                     }
-                    return new BookData(title, author, copies);
                 } catch (NumberFormatException e) {
-                    ShowError("Validation Error", "Please enter a valid number for copies!");
-                    return null;
+                    ShowError("Validation Error", "Invalid number format for copies!");
+                    event.consume();
+                }
+            }
+        });
+        
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == ButtonType.OK) {
+                try {
+                    String title = titleField.getText().trim();
+                    String author = authorField.getText().trim();
+                    String copiesText = copiesField.getText().trim();
+                    
+                    if (!title.isEmpty() && !author.isEmpty() && !copiesText.isEmpty()) {
+                        int copies = Integer.parseInt(copiesText);
+                        if (copies > 0) {
+                            return new BookData(title, author, copies);
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    // Return null if validation fails
                 }
             }
             return null;
         });
-        
+
         Optional<BookData> result = dialog.showAndWait();
         return result.orElse(null);
     }
-    
-    // Data class for returning dialog results
-    public static class BookData {
-        public final String title;
-        public final String author;
-        public final int copies;
+
+    /**
+     * Show confirmation dialog for adding a book
+     * @param title Book title
+     * @param author Book author
+     * @param copies Number of copies
+     * @return true if confirmed, false if cancelled
+     */
+    public static boolean ShowBookConfirmationDialog(String title, String author, int copies) {
+        Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirm Add Book");
+        confirmAlert.setHeaderText("Do you really want to add this book?");
         
-        public BookData(String title, String author, int copies) {
-            this.title = title;
-            this.author = author;
-            this.copies = copies;
-        }
+        String message = "📖 Title: " + title + "\n" +
+                        "✍️ Author: " + author + "\n" +
+                        "📚 Copies: " + copies + "\n" +
+                        "👤 Added by: " + (currentUserEmail != null ? currentUserEmail : "admin@library.com");
+        
+        confirmAlert.setContentText(message);
+        
+        // Customize buttons
+        confirmAlert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+        ((javafx.scene.control.Button) confirmAlert.getDialogPane().lookupButton(ButtonType.YES)).setText("Confirm");
+        ((javafx.scene.control.Button) confirmAlert.getDialogPane().lookupButton(ButtonType.NO)).setText("Cancel");
+        
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.YES;
     }
+
 }

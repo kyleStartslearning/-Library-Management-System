@@ -20,38 +20,50 @@ public class AdminController {
 
     @FXML
     void BTNaddBooks(ActionEvent event) {
-        // Show the add book dialog
-        BookData bookData = UtilityClass.ShowAddBookDialog();
+        // Show the add book dialog (which now includes confirmation)
+        UtilityClass.BookData bookData = UtilityClass.ShowAddBookDialog();
         
         if (bookData != null) {
+            // Check if book already exists before attempting to add
+            if (Book.bookExists(bookData.title, bookData.author)) {
+                UtilityClass.ShowError("Duplicate Book", 
+                    "This book already exists in the database!\n\n" +
+                    "📖 Title: " + bookData.title + "\n" +
+                    "✍️ Author: " + bookData.author + "\n\n" +
+                    "Please check the existing books or add a different book.");
+                return;
+            }
+            
             // Get current user email, default to admin if not set
             String currentEmail = UtilityClass.currentUserEmail != null ? 
                                  UtilityClass.currentUserEmail : "admin@library.com";
             
-            // Add book to database
+            // Add book to database (confirmation already handled in dialog)
             boolean success = Book.addBook(
                 bookData.title, 
                 bookData.author, 
                 bookData.copies, 
                 currentEmail,
-                "admin"  // Admin type
+                "admin"
             );
             
             if (success) {
                 UtilityClass.ShowInformation("Success", 
-                    "Book added successfully!\n\n" +
+                    "Book added successfully to the database!\n\n" +
                     "📖 Title: " + bookData.title + "\n" +
                     "✍️ Author: " + bookData.author + "\n" +
-                    "📚 Copies: " + bookData.copies + "\n" +
-                    "👤 Added by: " + currentEmail);
-                
-                // TODO: Refresh statistics on the dashboard
-                // updateStatistics();
+                    "📚 Copies: " + bookData.copies);
             } else {
-                UtilityClass.ShowError("Error", "Failed to add book to database. Please try again.");
+                UtilityClass.ShowError("Database Error", 
+                    "Failed to add book to database.\n\n" +
+                    "Possible reasons:\n" +
+                    "• Database connection issue\n" +
+                    "• Invalid data format\n" +
+                    "• System error\n\n" +
+                    "Please try again or contact system administrator.");
             }
         }
-        // If bookData is null, user cancelled the dialog - do nothing
+        // If bookData is null, user cancelled at some point
     }
 
     @FXML
