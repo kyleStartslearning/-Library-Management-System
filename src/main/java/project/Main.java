@@ -17,7 +17,7 @@ public class Main extends Application {
  
         try {
             // Initialize database
-           Connection connection = Connect.getDBConnection(); // This will initialize schema if needed
+           Connection connection = Connect.getDBConnection(); 
             
             // Load FXML and CSS
             Parent root = FXMLLoader.load(getClass().getResource("/project/FXML/LogIn.fxml"));

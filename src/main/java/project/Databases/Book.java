@@ -185,6 +185,58 @@ public class Book {
     }
     
     /**
+     * Search books for deletion (more detailed results)
+     */
+    public static List<Book> searchBooksForDeletion(String title, String author) {
+        StringBuilder queryBuilder = new StringBuilder("SELECT * FROM books WHERE ");
+        List<String> conditions = new ArrayList<>();
+        List<String> parameters = new ArrayList<>();
+        
+        if (title != null && !title.trim().isEmpty()) {
+            conditions.add("title LIKE ?");
+            parameters.add("%" + title.trim() + "%");
+        }
+        
+        if (author != null && !author.trim().isEmpty()) {
+            conditions.add("author LIKE ?");
+            parameters.add("%" + author.trim() + "%");
+        }
+        
+        // Join conditions with OR if both are provided, otherwise use the single condition
+        if (conditions.size() == 2) {
+            queryBuilder.append("(").append(conditions.get(0)).append(" OR ").append(conditions.get(1)).append(")");
+        } else {
+            queryBuilder.append(conditions.get(0));
+        }
+        
+        queryBuilder.append(" ORDER BY title, author");
+        
+        String query = queryBuilder.toString();
+        
+        return Connect.executeQuery(query, rs -> {
+            List<Book> books = new ArrayList<>();
+            try {
+                while (rs.next()) {
+                    Book book = new Book();
+                    book.setId(rs.getInt("id"));
+                    book.setTitle(rs.getString("title"));
+                    book.setAuthor(rs.getString("author"));
+                    book.setTotalCopies(rs.getInt("total_copies"));
+                    book.setAvailableCopies(rs.getInt("available_copies"));
+                    book.setBorrowCount(rs.getInt("borrow_count"));
+                    book.setAddedByEmail(rs.getString("added_by_email"));
+                    book.setAddedByType(rs.getString("added_by_type"));
+                    book.setCreatedAt(rs.getTimestamp("created_at"));
+                    books.add(book);
+                }
+            } catch (SQLException e) {
+                System.err.println("Error processing search results for deletion: " + e.getMessage());
+            }
+            return books;
+        }, parameters.toArray());
+    }
+    
+    /**
      * Get book by ID
      */
     public static Book getBookById(int id) {
@@ -222,9 +274,21 @@ public class Book {
     /**
      * Delete a book by ID
      */
-    public static boolean deleteBook(int bookId) {
+    public static boolean deleteBookById(int bookId) {
         String query = "DELETE FROM books WHERE id = ?";
-        return Connect.executeUpdate(query, bookId);
+        try {
+            boolean result = Connect.executeUpdate(query, bookId);
+            if (result) {
+                System.out.println("Book deleted successfully with ID: " + bookId);
+            } else {
+                System.err.println("Failed to delete book with ID: " + bookId);
+            }
+            return result;
+        } catch (Exception e) {
+            System.err.println("Error deleting book: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
     
     /**
@@ -249,3 +313,5 @@ public class Book {
         return Connect.executeCount("SELECT SUM(available_copies) FROM books");
     }
 }
+
+

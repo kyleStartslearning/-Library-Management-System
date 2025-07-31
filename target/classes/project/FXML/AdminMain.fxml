@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.controllers.AdminController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.controllers.AdminControllers">
     
     <!-- Left Sidebar -->
     <left>
@@ -81,11 +81,11 @@
                     </padding>
                 </Label>
 
-                <Button mnemonicParsing="false" onAction="#BTNaddMembers" prefHeight="40" prefWidth="220" style="-fx-background-color: white; -fx-background-radius: 8;">
+                <Button mnemonicParsing="false" onAction="#BTNviewAllMembers" prefHeight="40" prefWidth="220" style="-fx-background-color: white; -fx-background-radius: 8;">
                     <graphic>
                         <HBox alignment="CENTER_LEFT" spacing="10">
-                            <FontAwesomeIconView fill="#0598ff" glyphName="USER_PLUS" size="18" />
-                            <Label text="Add Members" textFill="#0598ff">
+                            <FontAwesomeIconView fill="#0598ff" glyphName="USERS" size="18" />
+                            <Label text="View all members" textFill="#0598ff">
                                 <font>
                                     <Font name="System Bold" size="14.0" />
                                 </font>
