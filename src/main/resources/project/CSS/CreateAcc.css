@@ -1,0 +1,52 @@
+/* Base styles */
+.button {
+    -fx-cursor: hand;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.button:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
+}
+
+/* Sign Up Button */
+#signUpButton {
+    -fx-background-color: #0598ff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+#signUpButton:hover {
+    -fx-background-color: #0478cc !important;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
+}
+
+/* Sign In Button */
+#signInButton {
+    -fx-background-color: transparent;
+    -fx-text-fill: #0598ff;
+    -fx-font-size: 12px;
+}
+
+#signInButton:hover {
+    -fx-background-color: #f0f0f0 !important;
+    -fx-text-fill: #0478cc;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
+}
+
+/* FontAwesome icon styling */
+.FontAwesomeIconView {
+    -fx-fill: #0598ff;
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.button:hover .FontAwesomeIconView {
+    -fx-fill: #0478cc;
+}

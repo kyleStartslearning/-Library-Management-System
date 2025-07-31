@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class Admin {
     private String email;
@@ -38,12 +39,11 @@ public class Admin {
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
     public static Admin authenticateAdmin(String email, String password) throws SQLException {
-        Connect dbConnect = Connect.getInstance();
-        Connection connection = dbConnect.getConnection();
-
         String query = "SELECT email, name, password, age, phone_number FROM admins WHERE email = ? AND password = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (Connection connection = Connect.getDBConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            
             stmt.setString(1, email);
             stmt.setString(2, password);
 
@@ -63,7 +63,20 @@ public class Admin {
         }
         
         return null;
+        
     }   
+
+    public void AddMembers(String email, String name, String password, int age, String phone_number, Timestamp createAt) {
+        
+    }
+
+    public void RemoveMembers(String email, String password){
+
+    }
+
+
+
+    
 
 
 

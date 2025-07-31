@@ -26,12 +26,6 @@ public class LogInController {
     private Button loginButton;
 
     @FXML
-    void BTNCreate(ActionEvent event) {
-
-
-    }
-
-    @FXML
     void BTNlogin(ActionEvent event) {
         String email = UserField.getText().trim();
         String password = PasswordField.getText();
@@ -56,6 +50,15 @@ public class LogInController {
             }
         } catch (Exception e) {
             UtilityClass.ShowError("Error", "Login error: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    void BTNCreate(ActionEvent event) {
+        try {
+            UtilityClass.switchScene(event, "CreateScene.fxml", "CreateAcc.css");
+        } catch (Exception e) {
+            UtilityClass.ShowError("Navigation Error", "Failed to load create account screen: " + e.getMessage());
         }
     }
 

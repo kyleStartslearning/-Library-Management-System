@@ -1,5 +1,7 @@
 package project;
 
+import java.sql.Connection;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,8 +17,7 @@ public class Main extends Application {
  
         try {
             // Initialize database
-            Connect dbConnection = Connect.getInstance();
-            dbConnection.getConnection(); // This will initialize schema if needed
+           Connection connection = Connect.getDBConnection(); // This will initialize schema if needed
             
             // Load FXML and CSS
             Parent root = FXMLLoader.load(getClass().getResource("/project/FXML/LogIn.fxml"));

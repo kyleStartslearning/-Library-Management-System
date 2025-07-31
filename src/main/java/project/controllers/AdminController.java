@@ -67,8 +67,14 @@ public class AdminController {
     }
 
     @FXML
+    void BTNremoveBooks(ActionEvent event) {
+        
+    }
+
+    @FXML
     void BTNaddMembers(ActionEvent event) {
-        // TODO: Implement add members functionality
+        
+        
     }
 
     @FXML
@@ -80,10 +86,7 @@ public class AdminController {
         }
     }
 
-    @FXML
-    void BTNremoveBooks(ActionEvent event) {
-        // TODO: Implement remove books functionality
-    }
+    
 
     @FXML
     void BTNremoveMembers(ActionEvent event) {
