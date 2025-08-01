@@ -11,7 +11,8 @@ import project.UtilityClass;
 import project.Databases.Book;
 import project.Databases.Admin;
 import project.Databases.LibraryMember;
-import project.Utilities.AlertMsg; // ADD THIS IMPORT
+import project.Utilities.AlertMsg;
+import project.Utilities.BooksDialog; // ADD THIS IMPORT
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -70,11 +71,10 @@ public class AdminControllers implements Initializable {
 
     @FXML
     void BTNaddBooks(ActionEvent event) {
-        UtilityClass.BookData bookData = UtilityClass.ShowAddBookDialog();
+        BooksDialog.BookData bookData = BooksDialog.showAddBookDialog(); // UPDATED
 
         if(bookData != null) {
             if (Book.bookExists(bookData.title, bookData.author)) {
-                // UPDATE THIS:
                 AlertMsg.showError("Duplicate Book", 
                 "This book already exists in the Library!\n\n" +
                     "📖 Title: " + bookData.title + "\n" +
@@ -94,7 +94,6 @@ public class AdminControllers implements Initializable {
             "admin");
 
             if (success) {
-                // UPDATE THIS:
                 AlertMsg.showInformation("Success",
                 "Book added successfully to the Library!\n\n" +
                     "📖 Title: " + bookData.title + "\n" +
@@ -103,7 +102,6 @@ public class AdminControllers implements Initializable {
                 
                 refreshStatistics();
             } else {
-                // UPDATE THIS:
                 AlertMsg.showError("Error", 
                  "Failed to add book to database.\n\n" +
                     "Possible reasons:\n" +
@@ -118,10 +116,9 @@ public class AdminControllers implements Initializable {
     @FXML
     void BTNremoveBooks(ActionEvent event) {
         try {
-            UtilityClass.ShowRemoveBook();
+            BooksDialog.showRemoveBookDialog(); // UPDATED
             refreshStatistics();
         } catch (Exception e) {
-            // UPDATE THIS:
             AlertMsg.showError("Error", "Failed to open remove book dialog: " + e.getMessage());
         }
     }
@@ -164,7 +161,11 @@ public class AdminControllers implements Initializable {
 
     @FXML
     void BTNsearchBooks(ActionEvent event) {
-
+        try {
+            BooksDialog.showSearchBooksDialog(); // UPDATED
+        } catch (Exception e) {
+            AlertMsg.showError("Error", "Failed to open search books dialog: " + e.getMessage());
+        }
     }
 
     @FXML

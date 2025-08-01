@@ -5,7 +5,11 @@ import javafx.scene.control.Alert.AlertType;
 
 public class AlertMsg {
     
-    
+    /**
+     * Show error alert dialog
+     * @param title Alert title (can be null)
+     * @param message Error message to display
+     */
     public static void showError(String title, String message) {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle(null);
