@@ -14,6 +14,8 @@ import project.Utilities.AlertMsg;
 import project.Utilities.SwitchSceneUtil;
 import project.Utilities.AdminUtil.BooksDialog;
 import project.Utilities.AdminUtil.MembersDialog;
+import project.Utilities.AdminUtil.SearchDialogs; // ADD THIS IMPORT
+import project.Utilities.AdminUtil.borrowedBooks; // ADD THIS IMPORT
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -170,7 +172,11 @@ public class AdminControllers implements Initializable {
 
     @FXML
     void BTNsearchMembers(ActionEvent event) {
-
+        try {
+            SearchDialogs.showSearchMembersDialog();
+        } catch (Exception e) {
+            AlertMsg.showError("Error", "Failed to open search members dialog: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -186,12 +192,17 @@ public class AdminControllers implements Initializable {
         }
     }
 
-    
-
     @FXML
-    void BTNviewBorrowers(ActionEvent event){
-      
-
+    void BTNviewBorrowers(ActionEvent event) {
+        try {
+            borrowedBooks.showAllBorrowersDialog(); // UPDATED TO USE borrowedBooks class
+        } catch (Exception e) {
+            AlertMsg.showError("Error", 
+                "Failed to retrieve borrower information from database.\n\n" +
+                "Error details: " + e.getMessage() + "\n\n" +
+                "Please try again or contact system administrator.");
+            e.printStackTrace();
+        }
     }
 
     @FXML
