@@ -72,28 +72,31 @@ public class Admin {
         
     }   
 
-    public static List<LibraryMember> ViewAllmembers() {
+    /**
+     * View all members in the system
+     * @return List of LibraryMember objects
+     */
+    public static List<LibraryMember> ViewAllMembers() {
         String query = "SELECT email, name, password, age, phone_number, created_at FROM members ORDER BY created_at DESC";
-
-         return Connect.executeQuery(query, rs -> {
-                List<LibraryMember> members = new ArrayList<>();
-                try {
-                    while (rs.next()) {
-                        LibraryMember member = new LibraryMember();
-                        member.setEmail(rs.getString("email"));
-                        member.setName(rs.getString("name"));
-                        member.setPassword(rs.getString("password"));
-                        member.setAge(rs.getInt("age"));
-                        member.setPhoneNumber(rs.getString("phone_number"));
-                        member.setCreatedAt(rs.getTimestamp("created_at"));
-                        members.add(member);
-                    }
-                } catch (SQLException e) {
-                    System.err.println("Error processing members: " + e.getMessage());
+        
+        return Connect.executeQuery(query, rs -> {
+            List<LibraryMember> members = new ArrayList<>();
+            try {
+                while (rs.next()) {
+                    LibraryMember member = new LibraryMember();
+                    member.setEmail(rs.getString("email"));
+                    member.setName(rs.getString("name"));
+                    member.setPassword(rs.getString("password"));
+                    member.setAge(rs.getInt("age"));
+                    member.setPhoneNumber(rs.getString("phone_number"));
+                    member.setCreatedAt(rs.getTimestamp("created_at"));
+                    members.add(member);
                 }
-                return members;
-            });
-
+            } catch (SQLException e) {
+                System.err.println("Error processing members: " + e.getMessage());
+            }
+            return members;
+        });
     }
 
     /**

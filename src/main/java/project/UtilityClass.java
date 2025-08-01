@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import project.Databases.Admin;
 import project.Databases.Book;
 import project.Databases.LibraryMember;
+import project.Utilities.AlertMsg; // ADD THIS IMPORT
 import javafx.geometry.Insets;
 import java.io.IOException;
 import java.util.List;
@@ -31,30 +32,6 @@ public class UtilityClass {
     public static String currentUserType; // 'admin' or 'member'
     public static String currentUserName;
 
-    public static void ShowError(String title, String message) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle(null);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    public static void ShowWarning(String title, String message) {
-        Alert alert = new Alert(AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    public static void ShowInformation(String title, String message) {
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
     public static void switchScene(ActionEvent event, String fxmlFile, String cssFile) throws IOException {
         try {
             FXMLLoader loader = new FXMLLoader(UtilityClass.class.getResource("/project/FXML/" + fxmlFile));
@@ -69,7 +46,7 @@ public class UtilityClass {
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
-            ShowError("Navigation Error", "Failed to load the requested screen: " + e.getMessage());
+            AlertMsg.showError("Navigation Error", "Failed to load the requested screen: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -164,19 +141,19 @@ public class UtilityClass {
             String copiesText = copiesField.getText().trim();
             
             if (title.isEmpty()) {
-                ShowError("Validation Error", "Book title is required!");
+                AlertMsg.showError("Validation Error", "Book title is required!");
                 event.consume();
             } else if (author.isEmpty()) {
-                ShowError("Validation Error", "Author name is required!");
+                AlertMsg.showError("Validation Error", "Author name is required!");
                 event.consume();
             } else if (copiesText.isEmpty()) {
-                ShowError("Validation Error", "Number of copies is required!");
+                AlertMsg.showError("Validation Error", "Number of copies is required!");
                 event.consume();
             } else {
                 try {
                     int copies = Integer.parseInt(copiesText);
                     if (copies <= 0) {
-                        ShowError("Validation Error", "Number of copies must be greater than 0!");
+                        AlertMsg.showError("Validation Error", "Number of copies must be greater than 0!");
                         event.consume();
                     } else {
                         // Show confirmation dialog
@@ -186,7 +163,7 @@ public class UtilityClass {
                         }
                     }
                 } catch (NumberFormatException e) {
-                    ShowError("Validation Error", "Invalid number format for copies!");
+                    AlertMsg.showError("Validation Error", "Invalid number format for copies!");
                     event.consume();
                 }
             }
@@ -298,7 +275,7 @@ public class UtilityClass {
             String author = authorField.getText().trim();
             
             if (title.isEmpty() && author.isEmpty()) {
-                ShowError("Validation Error", "Please enter either a title or author to search!");
+                AlertMsg.showError("Validation Error", "Please enter either a title or author to search!");
                 event.consume();
                 return;
             }
@@ -307,7 +284,7 @@ public class UtilityClass {
             List<Book> foundBooks = Book.searchBooksForDeletion(title, author);
             
             if (foundBooks.isEmpty()) {
-                ShowError("No Books Found", "No books found matching your search criteria.");
+                AlertMsg.showError("No Books Found", "No books found matching your search criteria.");
                 event.consume();
                 return;
             }
@@ -329,12 +306,12 @@ public class UtilityClass {
             // Delete the book
             boolean deleted = Book.deleteBookById(selectedBook.getId());
             if (deleted) {
-                ShowInformation("Success", "Book deleted successfully!\n\n" +
+                AlertMsg.showInformation("Success", "Book deleted successfully!\n\n" +
                     "📖 Title: " + selectedBook.getTitle() + "\n" +
                     "✍️ Author: " + selectedBook.getAuthor() + "\n" +
                     "🆔 Book ID: " + selectedBook.getId());
             } else {
-                ShowError("Error", "Failed to delete the book. Please try again.");
+                AlertMsg.showError("Error", "Failed to delete the book. Please try again.");
                 event.consume();
             }
         });
@@ -414,7 +391,7 @@ public class UtilityClass {
         javafx.scene.control.Button okButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
         okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
             if (toggleGroup.getSelectedToggle() == null) {
-                ShowError("Selection Required", "Please select a book to delete!");
+                AlertMsg.showError("Selection Required", "Please select a book to delete!");
                 event.consume();
             }
         });
@@ -677,7 +654,7 @@ public static void ShowRemoveMember() {
         String email = emailField.getText().trim();
         
         if (name.isEmpty() && email.isEmpty()) {
-            ShowError("Validation Error", "Please enter either a name or email to search!");
+            AlertMsg.showError("Validation Error", "Please enter either a name or email to search!");
             event.consume();
             return;
         }
@@ -686,7 +663,7 @@ public static void ShowRemoveMember() {
         List<LibraryMember> foundMembers = Admin.searchMembersForDeletion(name, email);
         
         if (foundMembers.isEmpty()) {
-            ShowError("No Members Found", "No members found matching your search criteria.");
+            AlertMsg.showError("No Members Found", "No members found matching your search criteria.");
             event.consume();
             return;
         }
@@ -708,12 +685,12 @@ public static void ShowRemoveMember() {
         // Delete the member
         boolean deleted = Admin.deleteMemberByEmail(selectedMember.getEmail());
         if (deleted) {
-            ShowInformation("Success", "Member deleted successfully!\n\n" +
+            AlertMsg.showInformation("Success", "Member deleted successfully!\n\n" +
                 "👤 Name: " + selectedMember.getName() + "\n" +
                 "📧 Email: " + selectedMember.getEmail() + "\n" +
                 "📞 Phone: " + selectedMember.getPhoneNumber());
         } else {
-            ShowError("Error", "Failed to delete the member. Please try again.");
+            AlertMsg.showError("Error", "Failed to delete the member. Please try again.");
             event.consume();
         }
     });
@@ -793,7 +770,7 @@ public static LibraryMember ShowMemberSelectionDialog(List<LibraryMember> member
     javafx.scene.control.Button okButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
     okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
         if (toggleGroup.getSelectedToggle() == null) {
-            ShowError("Selection Required", "Please select a member to delete!");
+            AlertMsg.showError("Selection Required", "Please select a member to delete!");
             event.consume();
         }
     });
@@ -902,7 +879,7 @@ public static LibraryMember ShowMemberSelectionDialog(List<LibraryMember> member
             String searchTerm = searchField.getText().trim();
             
             if (searchTerm.isEmpty()) {
-                ShowError("Validation Error", "Please enter a search term!");
+                AlertMsg.showError("Validation Error", "Please enter a search term!");
                 event.consume();
                 return;
             }
@@ -911,7 +888,7 @@ public static LibraryMember ShowMemberSelectionDialog(List<LibraryMember> member
             List<Book> foundBooks = Book.searchBooks(searchTerm);
             
             if (foundBooks.isEmpty()) {
-                ShowInformation("No Books Found", 
+                AlertMsg.showInformation("No Books Found", 
                     "📚 No books found matching: '" + searchTerm + "'\n\n" +
                     "Try searching with:\n" +
                     "• Different spelling\n" +

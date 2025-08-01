@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import project.Databases.Connect;
+import project.Utilities.AlertMsg;
 
 public class Main extends Application {
 
@@ -31,7 +32,7 @@ public class Main extends Application {
             primaryStage.show();
         } catch (Exception e) {
             e.printStackTrace();
-            UtilityClass.ShowError("Application Error", "Failed to start application: " + e.getMessage());
+            AlertMsg.showError("Application Error", "Failed to start application: " + e.getMessage());
         }
     }
 

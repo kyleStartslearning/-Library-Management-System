@@ -11,6 +11,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import project.Databases.Admin;
 import project.Databases.LibraryMember;
+import project.Utilities.AlertMsg;
 
 public class CreateController {
 
@@ -43,12 +44,12 @@ public class CreateController {
         String Password = PasswordField.getText().trim();
 
         if (Name.isEmpty() || Age.isEmpty() || Email.isEmpty() || Number.isEmpty() || Password.isEmpty()) {
-            UtilityClass.ShowError("Fill up", "Please fill in all fields");
+            AlertMsg.showError("Fill up", "Please fill in all fields");
             return;
         }
 
         if (Name.length() < 2) {
-            UtilityClass.ShowWarning("Invalid Name", "Please enter a valid name");
+            AlertMsg.showWarning("Invalid Name", "Please enter a valid name");
             return;
         }
 
@@ -56,26 +57,26 @@ public class CreateController {
         try {
             age = Integer.parseInt(Age);
             if (age <= 0 || age > 100) {
-                UtilityClass.ShowWarning("Invalid Age", "Please enter a valid age between 1 and 100");
+                AlertMsg.showWarning("Invalid Age", "Please enter a valid age between 1 and 100");
                 return;
             }
         } catch (NumberFormatException e) {
-            UtilityClass.ShowError("Invalid Age", "Please enter a valid number for age");
+            AlertMsg.showError("Invalid Age", "Please enter a valid number for age");
             return;
         }
 
         if (Password.length() < 4) {
-            UtilityClass.ShowWarning("Weak Password", "Password must be at least 4 characters long");
+            AlertMsg.showWarning("Weak Password", "Password must be at least 4 characters long");
             return;
         }
 
         if (!Number.matches("\\d{11}")) {
-            UtilityClass.ShowWarning("Invalid Phone", "Please enter a valid 11-digit phone number");
+            AlertMsg.showWarning("Invalid Phone", "Please enter a valid 11-digit phone number");
             return;
         }
 
         if (!Email.contains("@") || !Email.contains(".")) {
-            UtilityClass.ShowWarning("Invalid Email", "Please enter a valid email address");
+            AlertMsg.showWarning("Invalid Email", "Please enter a valid email address");
             return;
         }
 
@@ -102,7 +103,7 @@ public class CreateController {
                     // TODO: Add member to database
                     // For now, just show success and navigate
                     UtilityClass.currentUserEmail = Email;
-                    UtilityClass.ShowInformation("Success", "Member account created successfully!");
+                    AlertMsg.showInformation("Success", "Member account created successfully!");
                     UtilityClass.switchScene(event, "LogIn.fxml", "LogIn.css");
                 } else if (accountTypeResult.get() == adminButton) {
                     Alert adminPasscodeAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -118,10 +119,10 @@ public class CreateController {
                         String passcode = passcodeField.getText().trim();
                         if (passcode.equals("admin123")) { // Temporary hardcoded passcode
                             UtilityClass.currentUserEmail = Email;
-                            UtilityClass.ShowInformation("Success", "Admin account created successfully!");
+                            AlertMsg.showInformation("Success", "Admin account created successfully!");
                             UtilityClass.switchScene(event, "AdminMain.fxml", "AdminMain.css");
                         } else {
-                            UtilityClass.ShowError("Invalid Passcode", "The admin passcode is incorrect");
+                            AlertMsg.showError("Invalid Passcode", "The admin passcode is incorrect");
                         }
                     }
                 }

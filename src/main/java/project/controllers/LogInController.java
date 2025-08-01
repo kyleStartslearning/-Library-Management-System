@@ -7,6 +7,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import project.UtilityClass;
 import project.Databases.Admin;
+import project.Utilities.AlertMsg;
 
 public class LogInController {
 
@@ -31,7 +32,7 @@ public class LogInController {
         String password = PasswordField.getText();
 
         if (email.isEmpty() || password.isEmpty()) {
-            UtilityClass.ShowError("Error", "Please Fill in all fields");
+            AlertMsg.showError("Error", "Please Fill in all fields");
             return;
         }
 
@@ -40,16 +41,16 @@ public class LogInController {
             if (admin != null) {
                 
                 UtilityClass.currentUserEmail = email;
-                UtilityClass.ShowInformation("Success", "Welcome back, " + admin.getName() + "!");
+                AlertMsg.showInformation("Success", "Welcome back, " + admin.getName() + "!");
                 
                 
                 UtilityClass.switchScene(event, "AdminMain.fxml", "AdminMain.css");
             } else {
                 // Authentication failed
-                UtilityClass.ShowError("Login Failed", "Invalid email or password");
+                AlertMsg.showError("Login Failed", "Invalid email or password");
             }
         } catch (Exception e) {
-            UtilityClass.ShowError("Error", "Login error: " + e.getMessage());
+            AlertMsg.showError("Error", "Login error: " + e.getMessage());
         }
     }
 
@@ -58,7 +59,7 @@ public class LogInController {
         try {
             UtilityClass.switchScene(event, "CreateScene.fxml", "CreateAcc.css");
         } catch (Exception e) {
-            UtilityClass.ShowError("Navigation Error", "Failed to load create account screen: " + e.getMessage());
+            AlertMsg.showError("Navigation Error", "Failed to load create account screen: " + e.getMessage());
         }
     }
 

@@ -11,6 +11,7 @@ import project.UtilityClass;
 import project.Databases.Book;
 import project.Databases.Admin;
 import project.Databases.LibraryMember;
+import project.Utilities.AlertMsg; // ADD THIS IMPORT
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -73,7 +74,8 @@ public class AdminControllers implements Initializable {
 
         if(bookData != null) {
             if (Book.bookExists(bookData.title, bookData.author)) {
-                UtilityClass.ShowError("Duplicate Book", 
+                // UPDATE THIS:
+                AlertMsg.showError("Duplicate Book", 
                 "This book already exists in the Library!\n\n" +
                     "📖 Title: " + bookData.title + "\n" +
                     "✍️ Author: " + bookData.author + "\n\n" +
@@ -92,16 +94,17 @@ public class AdminControllers implements Initializable {
             "admin");
 
             if (success) {
-                UtilityClass.ShowInformation("Success",
+                // UPDATE THIS:
+                AlertMsg.showInformation("Success",
                 "Book added successfully to the Library!\n\n" +
                     "📖 Title: " + bookData.title + "\n" +
                     "✍️ Author: " + bookData.author + "\n" +
                     "📚 Copies: " + bookData.copies);
                 
-                // Refresh statistics after adding a book
                 refreshStatistics();
             } else {
-                UtilityClass.ShowError("Error", 
+                // UPDATE THIS:
+                AlertMsg.showError("Error", 
                  "Failed to add book to database.\n\n" +
                     "Possible reasons:\n" +
                     "• Database connection issue\n" +
@@ -116,30 +119,31 @@ public class AdminControllers implements Initializable {
     void BTNremoveBooks(ActionEvent event) {
         try {
             UtilityClass.ShowRemoveBook();
-            // Refresh statistics after removing a book
             refreshStatistics();
         } catch (Exception e) {
-            UtilityClass.ShowError("Error", "Failed to open remove book dialog: " + e.getMessage());
+            // UPDATE THIS:
+            AlertMsg.showError("Error", "Failed to open remove book dialog: " + e.getMessage());
         }
     }
 
     @FXML
     void BTNviewAllMembers(ActionEvent event) {
         try {
-            List<LibraryMember> allMembers = Admin.ViewAllmembers();
+            List<LibraryMember> allMembers = Admin.ViewAllMembers();
             
             if (allMembers.isEmpty()) {
-                UtilityClass.ShowInformation("No Members Found", 
+                // UPDATE THIS:
+                AlertMsg.showInformation("No Members Found", 
                     "📋 The library currently has no registered members.\n\n" +
                     "To add members, they need to register through the Create Account screen.");
                 return;
             }
             
-            // Show members in a dialog
             UtilityClass.ShowAllMembersDialog(allMembers);
             
         } catch (Exception e) {
-            UtilityClass.ShowError("Error", 
+            // UPDATE THIS:
+            AlertMsg.showError("Error", 
                 "Failed to retrieve members from database.\n\n" +
                 "Error details: " + e.getMessage() + "\n\n" +
                 "Please try again or contact system administrator.");
@@ -151,20 +155,16 @@ public class AdminControllers implements Initializable {
     void BTNremoveMembers(ActionEvent event) {
         try {
             UtilityClass.ShowRemoveMember();
-            // Refresh statistics after removing a member
             refreshStatistics();
         } catch (Exception e) {
-            UtilityClass.ShowError("Error", "Failed to open remove member dialog: " + e.getMessage());
+            // UPDATE THIS:
+            AlertMsg.showError("Error", "Failed to open remove member dialog: " + e.getMessage());
         }
     }
 
     @FXML
     void BTNsearchBooks(ActionEvent event) {
-        try {
-            UtilityClass.ShowSearchBooksDialog();
-        } catch (Exception e) {
-            UtilityClass.ShowError("Error", "Failed to open search books dialog: " + e.getMessage());
-        }
+
     }
 
     @FXML
@@ -190,7 +190,8 @@ public class AdminControllers implements Initializable {
           try {
             UtilityClass.switchScene(event, "LogIn.fxml", "LogIn.css");
         } catch (Exception e) {
-            UtilityClass.ShowError("Navigation Error", "Failed to logout: " + e.getMessage());
+            // UPDATE THIS:
+            AlertMsg.showError("Navigation Error", "Failed to logout: " + e.getMessage());
         }
     }
 
