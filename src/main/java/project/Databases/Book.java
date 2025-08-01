@@ -307,6 +307,13 @@ public class Book {
     }
     
     /**
+     * Get total number of currently borrowed books
+     */
+    public static int getCurrentlyBorrowedCount() {
+        return Connect.executeCount("SELECT COUNT(*) FROM borrowed_books WHERE is_returned = FALSE");
+    }
+    
+    /**
      * Get total number of available copies
      */
     public static int getTotalAvailableCopies() {

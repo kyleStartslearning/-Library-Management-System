@@ -5,13 +5,17 @@ import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import project.UtilityClass;
 import project.Databases.Book;
 import project.Databases.Admin;
 import project.Databases.LibraryMember;
 
-public class AdminControllers {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class AdminControllers implements Initializable {
 
     @FXML
     private Label borrowedBooksLabel;
@@ -21,6 +25,47 @@ public class AdminControllers {
 
     @FXML
     private Label totalMembersLabel;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        // Load statistics when the controller is initialized
+        loadStatistics();
+    }
+
+    /**
+     * Load and display statistics in the labels
+     */
+    private void loadStatistics() {
+        try {
+            // Get total books
+            int totalBooks = Book.getTotalBookCount();
+            totalBooksLabel.setText(String.valueOf(totalBooks));
+
+            // Get total members
+            int totalMembers = Admin.getTotalMemberCount();
+            totalMembersLabel.setText(String.valueOf(totalMembers));
+
+            // Get currently borrowed books
+            int borrowedBooks = Book.getCurrentlyBorrowedCount();
+            borrowedBooksLabel.setText(String.valueOf(borrowedBooks));
+
+        } catch (Exception e) {
+            System.err.println("Error loading statistics: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Set default values if there's an error
+            totalBooksLabel.setText("0");
+            totalMembersLabel.setText("0");
+            borrowedBooksLabel.setText("0");
+        }
+    }
+
+    /**
+     * Refresh statistics (call this after adding/removing books or members)
+     */
+    public void refreshStatistics() {
+        loadStatistics();
+    }
 
     @FXML
     void BTNaddBooks(ActionEvent event) {
@@ -39,8 +84,6 @@ public class AdminControllers {
             String currentEmail = UtilityClass.currentUserEmail != null ?
                                     UtilityClass.currentUserEmail : "admin@library.com";
 
-
-
             boolean success = Book.addBook(
             bookData.title, 
             bookData.author, 
@@ -54,6 +97,9 @@ public class AdminControllers {
                     "📖 Title: " + bookData.title + "\n" +
                     "✍️ Author: " + bookData.author + "\n" +
                     "📚 Copies: " + bookData.copies);
+                
+                // Refresh statistics after adding a book
+                refreshStatistics();
             } else {
                 UtilityClass.ShowError("Error", 
                  "Failed to add book to database.\n\n" +
@@ -63,23 +109,19 @@ public class AdminControllers {
                     "• System error\n\n" +
                     "Please try again or contact system administrator.");
             }
-
         }
-
     }
-
-    
 
     @FXML
     void BTNremoveBooks(ActionEvent event) {
         try {
             UtilityClass.ShowRemoveBook();
+            // Refresh statistics after removing a book
+            refreshStatistics();
         } catch (Exception e) {
             UtilityClass.ShowError("Error", "Failed to open remove book dialog: " + e.getMessage());
         }
     }
-
-
 
     @FXML
     void BTNviewAllMembers(ActionEvent event) {
@@ -109,6 +151,8 @@ public class AdminControllers {
     void BTNremoveMembers(ActionEvent event) {
         try {
             UtilityClass.ShowRemoveMember();
+            // Refresh statistics after removing a member
+            refreshStatistics();
         } catch (Exception e) {
             UtilityClass.ShowError("Error", "Failed to open remove member dialog: " + e.getMessage());
         }
@@ -116,7 +160,11 @@ public class AdminControllers {
 
     @FXML
     void BTNsearchBooks(ActionEvent event) {
-
+        try {
+            UtilityClass.ShowSearchBooksDialog();
+        } catch (Exception e) {
+            UtilityClass.ShowError("Error", "Failed to open search books dialog: " + e.getMessage());
+        }
     }
 
     @FXML

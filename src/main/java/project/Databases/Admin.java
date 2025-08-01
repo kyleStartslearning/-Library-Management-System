@@ -191,4 +191,11 @@ public class Admin {
             return false;
         }
     }
+
+    /**
+     * Get total number of members
+     */
+    public static int getTotalMemberCount() {
+        return Connect.executeCount("SELECT COUNT(*) FROM members");
+    }
 }
