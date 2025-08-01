@@ -13,7 +13,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import project.Databases.Admin;
 import project.Databases.Book;
+import project.Databases.LibraryMember;
 import javafx.geometry.Insets;
 import java.io.IOException;
 import java.util.List;
@@ -377,7 +379,7 @@ public class UtilityClass {
         headerLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0598ff;");
         vbox.getChildren().add(headerLabel);
         
-        // Add separator line
+        // Add separator label
         Label separatorLabel = new Label("─────┼─────────────────────────────────┼────────────────────────────┼───────┼──────────");
         separatorLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-text-fill: #cccccc;");
         vbox.getChildren().add(separatorLabel);
@@ -476,6 +478,147 @@ public class UtilityClass {
     
     Optional<ButtonType> result = confirmAlert.showAndWait();
     return result.isPresent() && result.get() == ButtonType.YES;
+}
+
+/**
+ * Show all members and admins in a dialog with detailed information
+ */
+public static void ShowAllMembersDialog(List<LibraryMember> members) {
+    // Get all admins as well
+    List<Admin> admins = Admin.ViewAllAdmins();
+    
+    Dialog<Void> dialog = new Dialog<>();
+    dialog.setTitle(null);
+    dialog.setHeaderText("📋 All Library Users (" + admins.size() + " admins, " + members.size() + " members)");
+
+    // Make dialog undecorated
+    dialog.setOnShowing(e -> {
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+    });
+
+    dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+
+    VBox vbox = new VBox(15);
+    vbox.setPadding(new Insets(20));
+
+    // ADMIN ACCOUNTS SECTION
+    if (!admins.isEmpty()) {
+        Label adminSectionLabel = new Label("🔧 ADMIN ACCOUNTS (" + admins.size() + " total)");
+        adminSectionLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #ff6b35; -fx-padding: 10px 0px;");
+        vbox.getChildren().add(adminSectionLabel);
+
+        // Add admin header with column titles
+        Label adminHeaderLabel = new Label("EMAIL                           | NAME                     | AGE | PHONE         | CREATED AT");
+        adminHeaderLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #ff6b35;");
+        vbox.getChildren().add(adminHeaderLabel);
+        
+        // Add admin separator label
+        Label adminSeparatorLabel = new Label("─────────────────────────────────┼──────────────────────────┼─────┼───────────────┼────────────────────");
+        adminSeparatorLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-text-fill: #cccccc;");
+        vbox.getChildren().add(adminSeparatorLabel);
+
+        // Add each admin
+        for (Admin admin : admins) {
+            String createdAtStr = admin.getCreatedAt() != null ? 
+                admin.getCreatedAt().toString().substring(0, 19) : "Unknown";
+            
+            String adminInfo = String.format("%-31s | %-24s | %-3d | %-13s | %s",
+                truncateString(admin.getEmail(), 31),
+                truncateString(admin.getName(), 24),
+                admin.getAge(),
+                truncateString(admin.getPhoneNumber(), 13),
+                createdAtStr);
+            
+            Label adminLabel = new Label(adminInfo);
+            adminLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #fff5f5;");
+            
+            // Add hover effect for admins
+            adminLabel.setOnMouseEntered(e -> 
+                adminLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #ffe6e6;"));
+            adminLabel.setOnMouseExited(e -> 
+                adminLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #fff5f5;"));
+            
+            vbox.getChildren().add(adminLabel);
+        }
+    }
+
+    // Add spacing between sections
+    Label spacingLabel = new Label("");
+    spacingLabel.setStyle("-fx-padding: 10px 0px;");
+    vbox.getChildren().add(spacingLabel);
+
+    // MEMBER ACCOUNTS SECTION
+    Label memberSectionLabel = new Label("👥 MEMBER ACCOUNTS (" + members.size() + " total)");
+    memberSectionLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0598ff; -fx-padding: 10px 0px;");
+    vbox.getChildren().add(memberSectionLabel);
+
+    if (!members.isEmpty()) {
+        // Add member header with column titles
+        Label memberHeaderLabel = new Label("EMAIL                           | NAME                     | AGE | PHONE         | CREATED AT");
+        memberHeaderLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0598ff;");
+        vbox.getChildren().add(memberHeaderLabel);
+        
+        // Add member separator line
+        Label memberSeparatorLabel = new Label("─────────────────────────────────┼──────────────────────────┼─────┼───────────────┼────────────────────");
+        memberSeparatorLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-text-fill: #cccccc;");
+        vbox.getChildren().add(memberSeparatorLabel);
+
+        // Add each member
+        for (LibraryMember member : members) {
+            String createdAtStr = member.getCreatedAt() != null ? 
+                member.getCreatedAt().toString().substring(0, 19) : "Unknown";
+            
+            String memberInfo = String.format("%-31s | %-24s | %-3d | %-13s | %s",
+                truncateString(member.getEmail(), 31),
+                truncateString(member.getName(), 24),
+                member.getAge(),
+                truncateString(member.getPhoneNumber(), 13),
+                createdAtStr);
+            
+            Label memberLabel = new Label(memberInfo);
+            memberLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px;");
+            
+            // Add hover effect for members
+            memberLabel.setOnMouseEntered(e -> 
+                memberLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #f0f8ff;"));
+            memberLabel.setOnMouseExited(e -> 
+                memberLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px;"));
+            
+            vbox.getChildren().add(memberLabel);
+        }
+    } else {
+        Label noMembersLabel = new Label("No members found in the system.");
+        noMembersLabel.setStyle("-fx-font-style: italic; -fx-text-fill: #888888; -fx-font-size: 12px;");
+        vbox.getChildren().add(noMembersLabel);
+    }
+
+    // Add summary at bottom
+    Label summaryLabel = new Label("\n📊 Total Users: " + (admins.size() + members.size()) + 
+                                  " (" + admins.size() + " admins + " + members.size() + " members)");
+    summaryLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #333333; -fx-font-size: 14px;");
+    vbox.getChildren().add(summaryLabel);
+
+    ScrollPane scrollPane = new ScrollPane(vbox);
+    scrollPane.setPrefSize(800, 600); // Increased height for both sections
+    scrollPane.setFitToWidth(true);
+
+    dialog.getDialogPane().setContent(scrollPane);
+    
+    // Apply consistent styling
+    dialog.getDialogPane().setStyle(
+        "-fx-border-color: #0598ff; " +
+        "-fx-border-width: 2px; " +
+        "-fx-border-radius: 5px; " +
+        "-fx-background-radius: 5px;"
+    );
+
+    // Customize close button
+    javafx.scene.control.Button closeButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.CLOSE);
+    closeButton.setText("Close");
+    closeButton.setStyle("-fx-background-color: #0598ff; -fx-text-fill: white; -fx-font-weight: bold;");
+
+    dialog.showAndWait();
 }
 
 

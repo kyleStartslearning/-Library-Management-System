@@ -1,12 +1,15 @@
 package project.controllers;
 
 import java.io.IOException;
+import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import project.UtilityClass;
 import project.Databases.Book;
+import project.Databases.Admin;
+import project.Databases.LibraryMember;
 
 public class AdminControllers {
 
@@ -76,6 +79,32 @@ public class AdminControllers {
         }
     }
 
+
+
+    @FXML
+    void BTNviewAllMembers(ActionEvent event) {
+        try {
+            List<LibraryMember> allMembers = Admin.ViewAllmembers();
+            
+            if (allMembers.isEmpty()) {
+                UtilityClass.ShowInformation("No Members Found", 
+                    "📋 The library currently has no registered members.\n\n" +
+                    "To add members, they need to register through the Create Account screen.");
+                return;
+            }
+            
+            // Show members in a dialog
+            UtilityClass.ShowAllMembersDialog(allMembers);
+            
+        } catch (Exception e) {
+            UtilityClass.ShowError("Error", 
+                "Failed to retrieve members from database.\n\n" +
+                "Error details: " + e.getMessage() + "\n\n" +
+                "Please try again or contact system administrator.");
+            e.printStackTrace();
+        }
+    }
+
     @FXML
     void BTNremoveMembers(ActionEvent event) {
 
@@ -96,10 +125,7 @@ public class AdminControllers {
 
     }
 
-    @FXML
-    void BTNviewAllMembers(ActionEvent event) {
-
-    }
+    
 
     @FXML
     void BTNviewBorrowers(ActionEvent event){
