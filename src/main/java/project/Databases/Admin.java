@@ -123,18 +123,72 @@ public class Admin {
         });
     }
 
-    
+    /**
+     * Search members for deletion (more detailed results)
+     */
+    public static List<LibraryMember> searchMembersForDeletion(String name, String email) {
+        StringBuilder queryBuilder = new StringBuilder("SELECT * FROM members WHERE ");
+        List<String> conditions = new ArrayList<>();
+        List<String> parameters = new ArrayList<>();
+        
+        if (name != null && !name.trim().isEmpty()) {
+            conditions.add("name LIKE ?");
+            parameters.add("%" + name.trim() + "%");
+        }
+        
+        if (email != null && !email.trim().isEmpty()) {
+            conditions.add("email LIKE ?");
+            parameters.add("%" + email.trim() + "%");
+        }
+        
+        // Join conditions with OR if both are provided, otherwise use the single condition
+        if (conditions.size() == 2) {
+            queryBuilder.append("(").append(conditions.get(0)).append(" OR ").append(conditions.get(1)).append(")");
+        } else {
+            queryBuilder.append(conditions.get(0));
+        }
+        
+        queryBuilder.append(" ORDER BY name, email");
+        
+        String query = queryBuilder.toString();
+        
+        return Connect.executeQuery(query, rs -> {
+            List<LibraryMember> members = new ArrayList<>();
+            try {
+                while (rs.next()) {
+                    LibraryMember member = new LibraryMember();
+                    member.setEmail(rs.getString("email"));
+                    member.setName(rs.getString("name"));
+                    member.setPassword(rs.getString("password"));
+                    member.setAge(rs.getInt("age"));
+                    member.setPhoneNumber(rs.getString("phone_number"));
+                    member.setCreatedAt(rs.getTimestamp("created_at"));
+                    members.add(member);
+                }
+            } catch (SQLException e) {
+                System.err.println("Error processing search results for member deletion: " + e.getMessage());
+            }
+            return members;
+        }, parameters.toArray());
+    }
 
-
-
-
-
-
-
-    
-
-
-
-
-    
+    /**
+     * Delete a member by email
+     */
+    public static boolean deleteMemberByEmail(String email) {
+        String query = "DELETE FROM members WHERE email = ?";
+        try {
+            boolean result = Connect.executeUpdate(query, email);
+            if (result) {
+                System.out.println("Member deleted successfully with email: " + email);
+            } else {
+                System.err.println("Failed to delete member with email: " + email);
+            }
+            return result;
+        } catch (Exception e) {
+            System.err.println("Error deleting member: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

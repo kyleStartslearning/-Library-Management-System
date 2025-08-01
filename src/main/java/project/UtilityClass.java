@@ -272,7 +272,7 @@ public class UtilityClass {
 
         String userInfo = currentUserEmail != null ? currentUserEmail : "admin@library.com";
         Label adminLabel = new Label("Deleting as: " + userInfo + " (ADMIN)");
-        adminLabel.setStyle("-fx-text-fill: #0598ff; -fx-font-size: 12px; -fx-font-weight: bold;");
+        adminLabel.setStyle("-fx-text-fill: #ff0000; -fx-font-size: 12px; -fx-font-weight: bold;");
 
         grid.add(adminLabel, 0, 0, 2, 1);
         grid.add(new Label("Title:"), 0, 1);
@@ -283,7 +283,7 @@ public class UtilityClass {
         dialog.getDialogPane().setContent(grid);
         
         dialog.getDialogPane().setStyle(
-            "-fx-border-color: #0598ff; " +
+            "-fx-border-color: #ff0000; " +
             "-fx-border-width: 2px; " +
             "-fx-border-radius: 5px; " +
             "-fx-background-radius: 5px;"
@@ -365,7 +365,7 @@ public class UtilityClass {
         
 
         dialog.getDialogPane().setStyle(
-            "-fx-border-color: #0598ff; " +
+            "-fx-border-color: #ff0000; " +
             "-fx-border-width: 2px; " +
             "-fx-border-radius: 5px; " +
             "-fx-background-radius: 5px;"
@@ -376,7 +376,7 @@ public class UtilityClass {
 
         // Add header label with column titles
         Label headerLabel = new Label("ID    | TITLE                           | AUTHOR                     | TOTAL | AVAILABLE");
-        headerLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0598ff;");
+        headerLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #ff0000;");
         vbox.getChildren().add(headerLabel);
         
         // Add separator label
@@ -455,7 +455,7 @@ public class UtilityClass {
     
     // Apply the same styling as ShowBookSelectionDialog
     confirmAlert.getDialogPane().setStyle(
-        "-fx-border-color: #0598ff; " +
+        "-fx-border-color: #ff0000; " +
         "-fx-border-width: 2px; " +
         "-fx-border-radius: 5px; " +
         "-fx-background-radius: 5px;"
@@ -621,7 +621,237 @@ public static void ShowAllMembersDialog(List<LibraryMember> members) {
     dialog.showAndWait();
 }
 
+/**
+ * Show dialog for removing a member
+ */
+public static void ShowRemoveMember() {
+    Dialog<Void> dialog = new Dialog<>();
+    dialog.setTitle(null);
+    dialog.setHeaderText("Search member to delete");
 
+    dialog.setOnShowing(e -> {
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+    });
 
+    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+    GridPane grid = new GridPane();
+    grid.setHgap(10);
+    grid.setVgap(10);
+    grid.setPadding(new Insets(20, 150, 10, 10));
+
+    TextField nameField = new TextField();
+    nameField.setPromptText("Member Name (partial search allowed)");
+    nameField.setPrefWidth(250);
+    
+    TextField emailField = new TextField();
+    emailField.setPromptText("Member Email (partial search allowed)");
+    emailField.setPrefWidth(250);
+
+    String userInfo = currentUserEmail != null ? currentUserEmail : "admin@library.com";
+    Label adminLabel = new Label("Deleting as: " + userInfo + " (ADMIN)");
+    adminLabel.setStyle("-fx-text-fill: #ff0000; -fx-font-size: 12px; -fx-font-weight: bold;");
+
+    grid.add(adminLabel, 0, 0, 2, 1);
+    grid.add(new Label("Name:"), 0, 1);
+    grid.add(nameField, 1, 1);
+    grid.add(new Label("Email:"), 0, 2);
+    grid.add(emailField, 1, 2);
+
+    dialog.getDialogPane().setContent(grid);
+    
+    dialog.getDialogPane().setStyle(
+        "-fx-border-color: #ff0000; " +
+        "-fx-border-width: 2px; " +
+        "-fx-border-radius: 5px; " +
+        "-fx-background-radius: 5px;"
+    );
+
+    nameField.requestFocus();
+
+    javafx.scene.control.Button okButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+    
+    okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+        String name = nameField.getText().trim();
+        String email = emailField.getText().trim();
+        
+        if (name.isEmpty() && email.isEmpty()) {
+            ShowError("Validation Error", "Please enter either a name or email to search!");
+            event.consume();
+            return;
+        }
+
+        // Search for members
+        List<LibraryMember> foundMembers = Admin.searchMembersForDeletion(name, email);
+        
+        if (foundMembers.isEmpty()) {
+            ShowError("No Members Found", "No members found matching your search criteria.");
+            event.consume();
+            return;
+        }
+
+        // Show member selection dialog
+        LibraryMember selectedMember = ShowMemberSelectionDialog(foundMembers);
+        if (selectedMember == null) {
+            event.consume(); // User cancelled selection
+            return;
+        }
+
+        // Show confirmation dialog
+        boolean confirmed = ShowDeleteMemberConfirmationDialog(selectedMember);
+        if (!confirmed) {
+            event.consume();
+            return;
+        }
+
+        // Delete the member
+        boolean deleted = Admin.deleteMemberByEmail(selectedMember.getEmail());
+        if (deleted) {
+            ShowInformation("Success", "Member deleted successfully!\n\n" +
+                "👤 Name: " + selectedMember.getName() + "\n" +
+                "📧 Email: " + selectedMember.getEmail() + "\n" +
+                "📞 Phone: " + selectedMember.getPhoneNumber());
+        } else {
+            ShowError("Error", "Failed to delete the member. Please try again.");
+            event.consume();
+        }
+    });
+
+    dialog.setResultConverter(dialogButton -> {
+        return null; // We handle everything in the event filter
+    });
+
+    dialog.showAndWait();
+}
+
+/**
+ * Show dialog to select a member from search results
+ */
+public static LibraryMember ShowMemberSelectionDialog(List<LibraryMember> members) {
+    Dialog<LibraryMember> dialog = new Dialog<>();
+    dialog.setTitle(null);
+    dialog.setHeaderText("Select member to delete:");
+
+    dialog.setOnShowing(e -> {
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+    });
+
+    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+    
+    dialog.getDialogPane().setStyle(
+        "-fx-border-color: #ff0000; " +
+        "-fx-border-width: 2px; " +
+        "-fx-border-radius: 5px; " +
+        "-fx-background-radius: 5px;"
+    );
+
+    VBox vbox = new VBox(10);
+    vbox.setPadding(new Insets(20));
+
+    // Add header label with column titles
+    Label headerLabel = new Label("EMAIL                           | NAME                     | AGE | PHONE         | CREATED AT");
+    headerLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #ff0000;");
+    vbox.getChildren().add(headerLabel);
+    
+    // Add separator line
+    Label separatorLabel = new Label("─────────────────────────────────┼──────────────────────────┼─────┼───────────────┼────────────────────");
+    separatorLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-text-fill: #cccccc;");
+    vbox.getChildren().add(separatorLabel);
+
+    ToggleGroup toggleGroup = new ToggleGroup();
+    
+    // Create radio buttons for each member
+    for (LibraryMember member : members) {
+        RadioButton radioButton = new RadioButton();
+        radioButton.setToggleGroup(toggleGroup);
+        radioButton.setUserData(member);
+        
+        String createdAtStr = member.getCreatedAt() != null ? 
+            member.getCreatedAt().toString().substring(0, 19) : "Unknown";
+        
+        // Create formatted member info with proper spacing
+        String memberInfo = String.format("%-31s | %-24s | %-3d | %-13s | %s",
+            truncateString(member.getEmail(), 31),
+            truncateString(member.getName(), 24),
+            member.getAge(),
+            truncateString(member.getPhoneNumber(), 13),
+            createdAtStr);
+        
+        radioButton.setText(memberInfo);
+        radioButton.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px;");
+        vbox.getChildren().add(radioButton);
+    }
+
+    ScrollPane scrollPane = new ScrollPane(vbox);
+    scrollPane.setPrefSize(700, 350);
+    scrollPane.setFitToWidth(true);
+
+    dialog.getDialogPane().setContent(scrollPane);
+
+    javafx.scene.control.Button okButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+    okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+        if (toggleGroup.getSelectedToggle() == null) {
+            ShowError("Selection Required", "Please select a member to delete!");
+            event.consume();
+        }
+    });
+
+    dialog.setResultConverter(dialogButton -> {
+        if (dialogButton == ButtonType.OK && toggleGroup.getSelectedToggle() != null) {
+            return (LibraryMember) toggleGroup.getSelectedToggle().getUserData();
+        }
+        return null;
+    });
+
+    Optional<LibraryMember> result = dialog.showAndWait();
+    return result.orElse(null);
+}
+
+/**
+ * Show confirmation dialog before deleting a member
+ */
+    public static boolean ShowDeleteMemberConfirmationDialog(LibraryMember member) {
+        Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
+        confirmAlert.setTitle(null);
+        confirmAlert.setHeaderText("⚠️ Are you sure you want to delete this member?");
+
+        // Make the dialog undecorated (removes title bar and X button)
+        confirmAlert.setOnShowing(e -> {
+            Stage stage = (Stage) confirmAlert.getDialogPane().getScene().getWindow();
+            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+        });
+        
+        // Apply the same styling as other deletion dialogs
+        confirmAlert.getDialogPane().setStyle(
+            "-fx-border-color: #ff0000; " +
+            "-fx-border-width: 2px; " +
+            "-fx-border-radius: 5px; " +
+            "-fx-background-radius: 5px;"
+        );
+        
+        String createdAtStr = member.getCreatedAt() != null ? 
+            member.getCreatedAt().toString().substring(0, 19) : "Unknown";
+        
+        String message = "👤 Name: " + member.getName() + "\n" +
+                        "📧 Email: " + member.getEmail() + "\n" +
+                        "🎂 Age: " + member.getAge() + "\n" +
+                        "📞 Phone: " + member.getPhoneNumber() + "\n" +
+                        "📅 Member Since: " + createdAtStr + "\n" +
+                        "🗑️ Deleted by: " + (currentUserEmail != null ? currentUserEmail : "admin@library.com") + "\n\n" +
+                        "⚠️ This action cannot be undone!";
+        
+        confirmAlert.setContentText(message);
+        
+        // Customize buttons
+        confirmAlert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+        ((javafx.scene.control.Button) confirmAlert.getDialogPane().lookupButton(ButtonType.YES)).setText("Delete Member");
+        ((javafx.scene.control.Button) confirmAlert.getDialogPane().lookupButton(ButtonType.NO)).setText("Cancel");
+        
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.YES;
+    }
 
 }
+

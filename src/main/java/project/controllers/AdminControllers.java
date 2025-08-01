@@ -107,7 +107,11 @@ public class AdminControllers {
 
     @FXML
     void BTNremoveMembers(ActionEvent event) {
-
+        try {
+            UtilityClass.ShowRemoveMember();
+        } catch (Exception e) {
+            UtilityClass.ShowError("Error", "Failed to open remove member dialog: " + e.getMessage());
+        }
     }
 
     @FXML
