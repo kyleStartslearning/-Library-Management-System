@@ -7,12 +7,13 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import project.UtilityClass;
 import project.Databases.Book;
 import project.Databases.Admin;
 import project.Databases.LibraryMember;
 import project.Utilities.AlertMsg;
-import project.Utilities.BooksDialog; // ADD THIS IMPORT
+import project.Utilities.SwitchSceneUtil;
+import project.Utilities.AdminUtil.BooksDialog;
+import project.Utilities.AdminUtil.MembersDialog;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -83,8 +84,8 @@ public class AdminControllers implements Initializable {
                 return;
             }
 
-            String currentEmail = UtilityClass.currentUserEmail != null ?
-                                    UtilityClass.currentUserEmail : "admin@library.com";
+            String currentEmail = SwitchSceneUtil.currentUserEmail != null ?
+                                    SwitchSceneUtil.currentUserEmail : "admin@library.com";
 
             boolean success = Book.addBook(
             bookData.title, 
@@ -129,17 +130,16 @@ public class AdminControllers implements Initializable {
             List<LibraryMember> allMembers = Admin.ViewAllMembers();
             
             if (allMembers.isEmpty()) {
-                // UPDATE THIS:
                 AlertMsg.showInformation("No Members Found", 
                     "📋 The library currently has no registered members.\n\n" +
                     "To add members, they need to register through the Create Account screen.");
                 return;
             }
             
-            UtilityClass.ShowAllMembersDialog(allMembers);
+            // UPDATED:
+            MembersDialog.showAllMembersDialog(allMembers);
             
         } catch (Exception e) {
-            // UPDATE THIS:
             AlertMsg.showError("Error", 
                 "Failed to retrieve members from database.\n\n" +
                 "Error details: " + e.getMessage() + "\n\n" +
@@ -151,10 +151,10 @@ public class AdminControllers implements Initializable {
     @FXML
     void BTNremoveMembers(ActionEvent event) {
         try {
-            UtilityClass.ShowRemoveMember();
+            // UPDATED:
+            MembersDialog.showRemoveMemberDialog();
             refreshStatistics();
         } catch (Exception e) {
-            // UPDATE THIS:
             AlertMsg.showError("Error", "Failed to open remove member dialog: " + e.getMessage());
         }
     }
@@ -175,7 +175,15 @@ public class AdminControllers implements Initializable {
 
     @FXML
     void BTNviewAllBooks(ActionEvent event) {
-
+        try {
+            BooksDialog.showAllBooksDialog();
+        } catch (Exception e) {
+            AlertMsg.showError("Error", 
+                "Failed to retrieve books from database.\n\n" +
+                "Error details: " + e.getMessage() + "\n\n" +
+                "Please try again or contact system administrator.");
+            e.printStackTrace();
+        }
     }
 
     
@@ -189,7 +197,7 @@ public class AdminControllers implements Initializable {
     @FXML
     void BTNlogOut(ActionEvent event) throws IOException {
           try {
-            UtilityClass.switchScene(event, "LogIn.fxml", "LogIn.css");
+            SwitchSceneUtil.switchScene(event, "LogIn.fxml", "LogIn.css");
         } catch (Exception e) {
             // UPDATE THIS:
             AlertMsg.showError("Navigation Error", "Failed to logout: " + e.getMessage());

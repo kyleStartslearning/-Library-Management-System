@@ -1,10 +1,5 @@
-package project;
+package project.Utilities.AdminUtil;
 
-import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -17,43 +12,21 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.geometry.Insets;
 import project.Databases.Admin;
 import project.Databases.LibraryMember;
 import project.Utilities.AlertMsg;
-import javafx.geometry.Insets;
-import java.io.IOException;
+import project.Utilities.SwitchSceneUtil;
+
 import java.util.List;
 import java.util.Optional;
 
-public class UtilityClass {
-
-    public static String currentUserEmail;
-    public static String currentUserType; // 'admin' or 'member'
-    public static String currentUserName;
-
-    public static void switchScene(ActionEvent event, String fxmlFile, String cssFile) throws IOException {
-        try {
-            FXMLLoader loader = new FXMLLoader(UtilityClass.class.getResource("/project/FXML/" + fxmlFile));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-
-            if (cssFile != null) {
-                scene.getStylesheets().add(UtilityClass.class.getResource("/project/CSS/" + cssFile).toExternalForm());
-            }
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            AlertMsg.showError("Navigation Error", "Failed to load the requested screen: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+public class MembersDialog {
 
     /**
      * Show all members and admins in a dialog with detailed information
      */
-    public static void ShowAllMembersDialog(List<LibraryMember> members) {
+    public static void showAllMembersDialog(List<LibraryMember> members) {
         // Get all admins as well
         List<Admin> admins = Admin.ViewAllAdmins();
         
@@ -192,18 +165,9 @@ public class UtilityClass {
     }
 
     /**
-     * Helper method to truncate strings that are too long for display
-     */
-    private static String truncateString(String str, int maxLength) {
-        if (str == null) return "";
-        if (str.length() <= maxLength) return str;
-        return str.substring(0, maxLength - 3) + "...";
-    }
-
-    /**
      * Show dialog for removing a member
      */
-    public static void ShowRemoveMember() {
+    public static void showRemoveMemberDialog() {
         Dialog<Void> dialog = new Dialog<>();
 
         dialog.setTitle(null);
@@ -229,7 +193,7 @@ public class UtilityClass {
         nameField.setPromptText("Member Name (partial search allowed)");
         nameField.setPrefWidth(250);
 
-        String userInfo = currentUserEmail != null ? currentUserEmail : "admin@library.com";
+        String userInfo = SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com";
         Label adminLabel = new Label("Deleting as: " + userInfo + " (ADMIN)");
         adminLabel.setStyle("-fx-text-fill: #ff0000; -fx-font-size: 12px; -fx-font-weight: bold;");
 
@@ -272,14 +236,14 @@ public class UtilityClass {
             }
 
             // Show member selection dialog
-            LibraryMember selectedMember = ShowMemberSelectionDialog(foundMembers);
+            LibraryMember selectedMember = showMemberSelectionDialog(foundMembers);
             if (selectedMember == null) {
                 event.consume(); // User cancelled selection
                 return;
             }
 
             // Show confirmation dialog
-            boolean confirmed = ShowDeleteMemberConfirmationDialog(selectedMember);
+            boolean confirmed = showDeleteMemberConfirmationDialog(selectedMember);
             if (!confirmed) {
                 event.consume();
                 return;
@@ -308,7 +272,7 @@ public class UtilityClass {
     /**
      * Show dialog to select a member from search results
      */
-    public static LibraryMember ShowMemberSelectionDialog(List<LibraryMember> members) {
+    public static LibraryMember showMemberSelectionDialog(List<LibraryMember> members) {
         Dialog<LibraryMember> dialog = new Dialog<>();
 
         dialog.setTitle(null);
@@ -393,7 +357,7 @@ public class UtilityClass {
     /**
      * Show confirmation dialog before deleting a member
      */
-    public static boolean ShowDeleteMemberConfirmationDialog(LibraryMember member) {
+    public static boolean showDeleteMemberConfirmationDialog(LibraryMember member) {
         Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
         confirmAlert.setTitle(null);
         confirmAlert.setHeaderText("⚠️ Are you sure you want to delete this member?");
@@ -420,7 +384,7 @@ public class UtilityClass {
                         "🎂 Age: " + member.getAge() + "\n" +
                         "📞 Phone: " + member.getPhoneNumber() + "\n" +
                         "📅 Created: " + createdAtStr + "\n" +
-                        "🗑️ Deleted by: " + (currentUserEmail != null ? currentUserEmail : "admin@library.com") + "\n\n" +
+                        "🗑️ Deleted by: " + (SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com") + "\n\n" +
                         "⚠️ This action cannot be undone!\n" +
                         "⚠️ All borrowed books by this member will also be affected!";
         
@@ -435,5 +399,12 @@ public class UtilityClass {
         return result.isPresent() && result.get() == ButtonType.YES;
     }
 
+    /**
+     * Helper method to truncate strings that are too long for display
+     */
+    private static String truncateString(String str, int maxLength) {
+        if (str == null) return "";
+        if (str.length() <= maxLength) return str;
+        return str.substring(0, maxLength - 3) + "...";
+    }
 }
-

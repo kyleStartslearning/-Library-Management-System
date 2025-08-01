@@ -5,9 +5,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import project.UtilityClass;
 import project.Databases.Admin;
 import project.Utilities.AlertMsg;
+import project.Utilities.SwitchSceneUtil;
 
 public class LogInController {
 
@@ -40,11 +40,11 @@ public class LogInController {
             Admin admin = Admin.authenticateAdmin(email, password);
             if (admin != null) {
                 
-                UtilityClass.currentUserEmail = email;
+                SwitchSceneUtil.currentUserEmail = email;
                 AlertMsg.showInformation("Success", "Welcome back, " + admin.getName() + "!");
                 
                 
-                UtilityClass.switchScene(event, "AdminMain.fxml", "AdminMain.css");
+                SwitchSceneUtil.switchScene(event, "AdminMain.fxml", "AdminMain.css");
             } else {
                 // Authentication failed
                 AlertMsg.showError("Login Failed", "Invalid email or password");
@@ -57,7 +57,7 @@ public class LogInController {
     @FXML
     void BTNCreate(ActionEvent event) {
         try {
-            UtilityClass.switchScene(event, "CreateScene.fxml", "CreateAcc.css");
+            SwitchSceneUtil.switchScene(event, "CreateScene.fxml", "CreateAcc.css");
         } catch (Exception e) {
             AlertMsg.showError("Navigation Error", "Failed to load create account screen: " + e.getMessage());
         }

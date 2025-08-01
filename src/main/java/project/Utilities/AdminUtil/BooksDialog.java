@@ -1,4 +1,4 @@
-package project.Utilities;
+package project.Utilities.AdminUtil;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
@@ -15,7 +15,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.geometry.Insets;
 import project.Databases.Book;
-import project.UtilityClass;
+import project.Utilities.AlertMsg;
+import project.Utilities.SwitchSceneUtil;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -74,7 +76,7 @@ public class BooksDialog {
         copiesField.setPromptText("Number of Copies");
         copiesField.setPrefWidth(250);
         
-        String userInfo = UtilityClass.currentUserEmail != null ? UtilityClass.currentUserEmail : "admin@library.com";
+        String userInfo = SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com";
         Label adminLabel = new Label("Adding as: " + userInfo + " (ADMIN)");
         adminLabel.setStyle("-fx-text-fill: #0598ff; -fx-font-size: 12px; -fx-font-weight: bold;");
         
@@ -178,7 +180,7 @@ public class BooksDialog {
         String message = "📖 Title: " + title + "\n" +
                         "✍️ Author: " + author + "\n" +
                         "📚 Copies: " + copies + "\n" +
-                        "👤 Added by: " + (UtilityClass.currentUserEmail != null ? UtilityClass.currentUserEmail : "admin@library.com");
+                        "👤 Added by: " + (SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com");
         
         confirmAlert.setContentText(message);
         
@@ -217,7 +219,7 @@ public class BooksDialog {
         authorField.setPromptText("Author Name (partial search allowed)");
         authorField.setPrefWidth(250);
 
-        String userInfo = UtilityClass.currentUserEmail != null ? UtilityClass.currentUserEmail : "admin@library.com";
+        String userInfo = SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com";
         Label adminLabel = new Label("Deleting as: " + userInfo + " (ADMIN)");
         adminLabel.setStyle("-fx-text-fill: #ff0000; -fx-font-size: 12px; -fx-font-weight: bold;");
 
@@ -403,7 +405,7 @@ public class BooksDialog {
                         "✍️ Author: " + book.getAuthor() + "\n" +
                         "📚 Total Copies: " + book.getTotalCopies() + "\n" +
                         "📗 Available Copies: " + book.getAvailableCopies() + "\n" +
-                        "👤 Deleted by: " + (UtilityClass.currentUserEmail != null ? UtilityClass.currentUserEmail : "admin@library.com") + "\n\n" +
+                        "👤 Deleted by: " + (SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com") + "\n\n" +
                         "⚠️ This action cannot be undone!";
         
         confirmAlert.setContentText(message);
@@ -441,7 +443,7 @@ public class BooksDialog {
         searchField.setPromptText("Enter book title or author name");
         searchField.setPrefWidth(300);
 
-        String userInfo = UtilityClass.currentUserEmail != null ? UtilityClass.currentUserEmail : "admin@library.com";
+        String userInfo = SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com";
         Label adminLabel = new Label("Searching as: " + userInfo + " (ADMIN)");
         adminLabel.setStyle("-fx-text-fill: #0598ff; -fx-font-size: 12px; -fx-font-weight: bold;");
 
@@ -486,8 +488,8 @@ public class BooksDialog {
                 return;
             }
 
-            // Show search results
-            showSearchResultsDialog(foundBooks, searchTerm);
+            // Show search results - UPDATED TO USE SearchDialogs
+            SearchDialogs.showSearchResultsDialog(foundBooks, searchTerm);
         });
 
         // Allow Enter key to trigger search
@@ -498,12 +500,15 @@ public class BooksDialog {
     }
 
     /**
-     * Show search results in a formatted dialog
+     * Show all books in the library in a formatted dialog
      */
-    public static void showSearchResultsDialog(List<Book> books, String searchTerm) {
+    public static void showAllBooksDialog() {
+        // Get all books from the database
+        List<Book> allBooks = Book.getAllBooks();
+        
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle(null);
-        dialog.setHeaderText("📚 Search Results for: '" + searchTerm + "' (" + books.size() + " books found)");
+        dialog.setHeaderText("📚 All Library Books (" + allBooks.size() + " books total)");
 
         dialog.setOnShowing(e -> {
             Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
@@ -512,71 +517,98 @@ public class BooksDialog {
 
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
 
-        VBox vbox = new VBox(10);
-        vbox.setPadding(new Insets(20));
+        if (allBooks.isEmpty()) {
+            // Show empty state
+            VBox emptyVBox = new VBox(20);
+            emptyVBox.setPadding(new Insets(40));
+            
+            Label emptyLabel = new Label("📚 No books found in the library!");
+            emptyLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #666666;");
+            
+            Label suggestionLabel = new Label("To add books, use the 'Add Books' button in the admin panel.");
+            suggestionLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #888888; -fx-font-style: italic;");
+            
+            emptyVBox.getChildren().addAll(emptyLabel, suggestionLabel);
+            dialog.getDialogPane().setContent(emptyVBox);
+        } else {
+            VBox vbox = new VBox(10);
+            vbox.setPadding(new Insets(20));
 
-        // Add header with column titles
-        Label headerLabel = new Label("ID    | TITLE                           | AUTHOR                     | TOTAL | AVAILABLE | BORROWED");
-        headerLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0598ff;");
-        vbox.getChildren().add(headerLabel);
-        
-        // Add separator line
-        Label separatorLabel = new Label("─────┼─────────────────────────────────┼────────────────────────────┼───────┼───────────┼─────────");
-        separatorLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-text-fill: #cccccc;");
-        vbox.getChildren().add(separatorLabel);
+            // Add header with column titles
+            Label headerLabel = new Label("ID    | TITLE                           | AUTHOR                     | TOTAL | AVAILABLE | BORROWED | STATUS");
+            headerLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0598ff;");
+            vbox.getChildren().add(headerLabel);
+            
+            // Add separator line
+            Label separatorLabel = new Label("─────┼─────────────────────────────────┼────────────────────────────┼───────┼───────────┼──────────┼──────────");
+            separatorLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-text-fill: #cccccc;");
+            vbox.getChildren().add(separatorLabel);
 
-        // Add each book
-        for (Book book : books) {
-            int borrowedCopies = book.getTotalCopies() - book.getAvailableCopies();
-            
-            String bookInfo = String.format("%-5d | %-31s | %-26s | %-5d | %-9d | %-8d",
-                book.getId(),
-                truncateString(book.getTitle(), 31),
-                truncateString(book.getAuthor(), 26),
-                book.getTotalCopies(),
-                book.getAvailableCopies(),
-                borrowedCopies);
-            
-            Label bookLabel = new Label(bookInfo);
-            bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px;");
-            
-            // Add hover effect
-            bookLabel.setOnMouseEntered(e -> 
-                bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #f0f8ff;"));
-            bookLabel.setOnMouseExited(e -> 
-                bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px;"));
-            
-            // Highlight unavailable books
-            if (book.getAvailableCopies() == 0) {
-                bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #ffe6e6; -fx-text-fill: #cc0000;");
+            // Add each book
+            for (Book book : allBooks) {
+                int borrowedCopies = book.getTotalCopies() - book.getAvailableCopies();
+                String status = book.getAvailableCopies() > 0 ? "Available" : "Out of Stock";
+                
+                String bookInfo = String.format("%-5d | %-31s | %-26s | %-5d | %-9d | %-8d | %s",
+                    book.getId(),
+                    truncateString(book.getTitle(), 31),
+                    truncateString(book.getAuthor(), 26),
+                    book.getTotalCopies(),
+                    book.getAvailableCopies(),
+                    borrowedCopies,
+                    status);
+                
+                Label bookLabel = new Label(bookInfo);
+                bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px;");
+                
+                // Add hover effect
+                bookLabel.setOnMouseEntered(e -> 
+                    bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #f0f8ff;"));
+                bookLabel.setOnMouseExited(e -> 
+                    bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px;"));
+                
+                // Highlight unavailable books
+                if (book.getAvailableCopies() == 0) {
+                    bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #ffe6e6; -fx-text-fill: #cc0000;");
+                    
+                    bookLabel.setOnMouseEntered(e -> 
+                        bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #ffcccc; -fx-text-fill: #cc0000;"));
+                    bookLabel.setOnMouseExited(e -> 
+                        bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #ffe6e6; -fx-text-fill: #cc0000;"));
+                }
+                
+                vbox.getChildren().add(bookLabel);
             }
+
+            // Add summary statistics
+            int totalBooks = allBooks.size();
+            int totalCopies = allBooks.stream().mapToInt(Book::getTotalCopies).sum();
+            int availableCopies = allBooks.stream().mapToInt(Book::getAvailableCopies).sum();
+            int borrowedCopies = totalCopies - availableCopies;
+            int outOfStockBooks = (int) allBooks.stream().filter(book -> book.getAvailableCopies() == 0).count();
+            int availableBooks = totalBooks - outOfStockBooks;
             
-            vbox.getChildren().add(bookLabel);
+            Label summaryLabel = new Label(String.format(
+                "\n📊 Library Statistics:\n" +
+                "   📚 Total Books: %d titles | 📦 Total Copies: %d\n" +
+                "   ✅ Available: %d copies (%d books) | 📖 Borrowed: %d copies\n" +
+                "   ❌ Out of Stock: %d books",
+                totalBooks, totalCopies, availableCopies, availableBooks, borrowedCopies, outOfStockBooks));
+            summaryLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #0598ff; -fx-font-size: 14px;");
+            vbox.getChildren().add(summaryLabel);
+
+            // Add view information
+            String userInfo = SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com";
+            Label viewInfoLabel = new Label("\n👤 Viewing as: " + userInfo + " (ADMIN)");
+            viewInfoLabel.setStyle("-fx-font-style: italic; -fx-text-fill: #666666; -fx-font-size: 12px;");
+            vbox.getChildren().add(viewInfoLabel);
+
+            ScrollPane scrollPane = new ScrollPane(vbox);
+            scrollPane.setPrefSize(900, 600); // Increased width for the status column
+            scrollPane.setFitToWidth(true);
+
+            dialog.getDialogPane().setContent(scrollPane);
         }
-
-        // Add summary statistics
-        int totalCopies = books.stream().mapToInt(Book::getTotalCopies).sum();
-        int availableCopies = books.stream().mapToInt(Book::getAvailableCopies).sum();
-        int borrowedCopies = totalCopies - availableCopies;
-        
-        Label summaryLabel = new Label(String.format(
-            "\n📊 Summary: %d books found | %d total copies | %d available | %d borrowed",
-            books.size(), totalCopies, availableCopies, borrowedCopies));
-        summaryLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #0598ff; -fx-font-size: 14px;");
-        vbox.getChildren().add(summaryLabel);
-
-        // Add search tips
-        if (books.size() < 5) {
-            Label tipsLabel = new Label("\n💡 Tips: Try searching with partial titles, author surnames, or different keywords for more results.");
-            tipsLabel.setStyle("-fx-font-style: italic; -fx-text-fill: #666666; -fx-font-size: 12px;");
-            vbox.getChildren().add(tipsLabel);
-        }
-
-        ScrollPane scrollPane = new ScrollPane(vbox);
-        scrollPane.setPrefSize(800, 500);
-        scrollPane.setFitToWidth(true);
-
-        dialog.getDialogPane().setContent(scrollPane);
         
         // Apply consistent styling
         dialog.getDialogPane().setStyle(

@@ -3,7 +3,6 @@ package project.controllers;
 import java.io.IOException;
 import java.util.Optional;
 
-import project.UtilityClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -12,6 +11,7 @@ import javafx.scene.control.TextField;
 import project.Databases.Admin;
 import project.Databases.LibraryMember;
 import project.Utilities.AlertMsg;
+import project.Utilities.SwitchSceneUtil;
 
 public class CreateController {
 
@@ -32,7 +32,7 @@ public class CreateController {
 
     @FXML
     void BTNSignIn(ActionEvent event) throws IOException {
-        UtilityClass.switchScene(event, "LogIn.fxml", "LogIn.css");
+        SwitchSceneUtil.switchScene(event, "LogIn.fxml", "LogIn.css");
     }
 
     @FXML
@@ -102,9 +102,9 @@ public class CreateController {
                 if (accountTypeResult.get() == memberButton) {
                     // TODO: Add member to database
                     // For now, just show success and navigate
-                    UtilityClass.currentUserEmail = Email;
+                    SwitchSceneUtil.currentUserEmail = Email;
                     AlertMsg.showInformation("Success", "Member account created successfully!");
-                    UtilityClass.switchScene(event, "LogIn.fxml", "LogIn.css");
+                    SwitchSceneUtil.switchScene(event, "LogIn.fxml", "LogIn.css");
                 } else if (accountTypeResult.get() == adminButton) {
                     Alert adminPasscodeAlert = new Alert(Alert.AlertType.CONFIRMATION);
                     adminPasscodeAlert.setTitle("Admin Verification");
@@ -118,9 +118,9 @@ public class CreateController {
                         // TODO: Implement Admin.VerifyPasscode and Admin.addAdmin methods
                         String passcode = passcodeField.getText().trim();
                         if (passcode.equals("admin123")) { // Temporary hardcoded passcode
-                            UtilityClass.currentUserEmail = Email;
+                            SwitchSceneUtil.currentUserEmail = Email;
                             AlertMsg.showInformation("Success", "Admin account created successfully!");
-                            UtilityClass.switchScene(event, "AdminMain.fxml", "AdminMain.css");
+                            SwitchSceneUtil.switchScene(event, "AdminMain.fxml", "AdminMain.css");
                         } else {
                             AlertMsg.showError("Invalid Passcode", "The admin passcode is incorrect");
                         }

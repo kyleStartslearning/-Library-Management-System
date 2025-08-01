@@ -1,4 +1,4 @@
-package project.Utilities;
+package project.Utilities.AdminUtil;
 
 public class ValidationUtils {
     
