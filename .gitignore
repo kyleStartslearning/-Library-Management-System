@@ -1,0 +1,49 @@
+# Database files (contains user data, auto-generated)
+*.db
+My.db
+
+# Maven build directory (auto-generated)
+target/
+*.jar
+*.war
+
+# IDE files (personal preferences)
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS specific files
+.DS_Store      # Mac
+Thumbs.db      # Windows
+*.tmp
+*.log
+
+# Compiled Java files (auto-generated)
+*.class
+
+# JavaFX specific
+*.fxml.bak
+
+# Local environment files
+.env
+application-local.properties
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Log files
+*.log
+logs/
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
