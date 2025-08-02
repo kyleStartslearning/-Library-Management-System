@@ -215,6 +215,62 @@ public class Connect {
                 "GROUP BY added_by_email, added_by_type " +
                 "ORDER BY books_contributed DESC");
             
+           
+            stmt.execute("INSERT OR IGNORE INTO borrowed_books (member_email, book_id, borrow_date, return_date, is_returned) VALUES " +
+                "('kyle@gmail.com', 1, '2024-07-15 10:30:00', '2024-07-25 14:20:00', 1), " +
+                "('allen@gmail.com', 3, '2024-07-18 09:15:00', '2024-07-28 16:45:00', 1), " +
+                "('kelly@gmail.com', 5, '2024-07-20 11:00:00', '2024-07-30 13:30:00', 1), " +
+                "('colin@gmail.com', 7, '2024-07-22 14:30:00', '2024-08-01 10:15:00', 1), " +
+                "('rjay@gmail.com', 2, '2024-07-10 08:45:00', '2024-07-20 17:20:00', 1), " +
+                "('jansean@gmail.com', 9, '2024-07-12 16:20:00', '2024-07-22 12:10:00', 1), " +
+                "('kayezel@gmail.com', 11, '2024-07-14 13:45:00', '2024-07-24 15:30:00', 1), " +
+                
+                // Currently borrowed books (not returned yet)
+                "('kyle@gmail.com', 14, '2024-07-28 10:30:00', NULL, 0), " + 
+                "('allen@gmail.com', 12, '2024-07-30 14:15:00', NULL, 0), " +
+                "('kelly@gmail.com', 8, '2024-08-01 09:20:00', NULL, 0), " +  
+                "('rjay@gmail.com', 6, '2024-08-02 11:45:00', NULL, 0), " +  
+                "('colin@gmail.com', 13, '2024-07-25 16:30:00', NULL, 0), " +
+                
+                // Some members borrowed multiple books over time
+                "('kyle@gmail.com', 4, '2024-06-15 10:00:00', '2024-06-25 14:30:00', 1), " + 
+                "('kyle@gmail.com', 10, '2024-06-28 12:15:00', '2024-07-08 16:45:00', 1), " +
+                "('allen@gmail.com', 4, '2024-06-20 09:30:00', '2024-06-30 13:20:00', 1), " +
+                "('kelly@gmail.com', 1, '2024-06-10 14:20:00', '2024-06-20 11:10:00', 1), " + 
+                "('jansean@gmail.com', 4, '2024-07-05 15:45:00', '2024-07-15 10:30:00', 1)"); 
+
+            // Update borrow counts for popular books
+            stmt.execute("UPDATE books SET borrow_count = 3 WHERE id = 4"); // 1984 - very popular
+            stmt.execute("UPDATE books SET borrow_count = 2 WHERE id = 1"); // To Kill a Mockingbird
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 2"); // Pride and Prejudice  
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 3"); // Crime and Punishment
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 5"); // The Lord of the Rings
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 6"); // The Great Gatsby
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 7"); // Noli Me Tangere
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 8"); // El Filibusterismo
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 9"); // One Piece
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 10"); // Bleach
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 11"); // Fairy Tail
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 12"); // DanMachi
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 13"); // One Punch Man
+            stmt.execute("UPDATE books SET borrow_count = 1 WHERE id = 14"); // Jujutsu Kaisen
+
+            // Update available copies for currently borrowed books
+            stmt.execute("UPDATE books SET available_copies = 4 WHERE id IN (6, 8, 12, 13, 14)"); 
+
+            // Add some member-contributed books to make it more realistic
+            stmt.execute("INSERT OR IGNORE INTO books (title, author, total_copies, available_copies, borrow_count, added_by_email, added_by_type) VALUES " +
+                "('The Alchemist', 'Paulo Coelho', 3, 3, 0, 'kyle@gmail.com', 'member'), " +
+                "('Rich Dad Poor Dad', 'Robert Kiyosaki', 2, 2, 0, 'allen@gmail.com', 'member'), " +
+                "('Atomic Habits', 'James Clear', 3, 2, 1, 'kelly@gmail.com', 'member'), " +
+                "('Sapiens', 'Yuval Noah Harari', 2, 2, 0, 'rjay@gmail.com', 'member'), " +
+                "('The 7 Habits', 'Stephen Covey', 2, 1, 1, 'colin@gmail.com', 'member')");
+            
+            // Add some borrowing history for member-contributed books
+            stmt.execute("INSERT OR IGNORE INTO borrowed_books (member_email, book_id, borrow_date, return_date, is_returned) VALUES " +
+                "('jansean@gmail.com', 17, '2024-07-20 10:30:00', '2024-07-30 14:20:00', 1), " + 
+                "('kayezel@gmail.com', 19, '2024-07-25 11:15:00', NULL, 0)"); 
+
             System.out.println("Database schema initialized successfully with audit trail support");
             
         } catch (SQLException e) {

@@ -124,27 +124,6 @@ Run the console test utility to verify database operations:
 mvn exec:java -Dexec.mainClass="project.ConsoleTest"
 ```
 
-## 🛠️ Built With
-
-- **[JavaFX](https://openjfx.io/)** - Modern UI framework
-- **[SQLite](https://www.sqlite.org/)** - Embedded database
-- **[Maven](https://maven.apache.org/)** - Build automation
-- **[FontAwesome](https://fontawesome.com/)** - Icons
-
-### Login Screen
-- Clean, modern login interface
-- Admin and member authentication
-
-### Admin Dashboard
-- Book and member management
-- Statistics overview
-- Search functionality
-
-### Member Interface
-- Book browsing and searching
-- Borrowing and return system
-- Personal borrowing history
-
 ## 🤝 Contributing
 
 1. Fork the repository
