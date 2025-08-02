@@ -201,4 +201,53 @@ public class Admin {
     public static int getTotalMemberCount() {
         return Connect.executeCount("SELECT COUNT(*) FROM members");
     }
+
+    /**
+     * Add a new admin to the database
+     */
+    public static boolean addAdmin(String email, String name, String password, int age, String phoneNumber) {
+        // Check if admin already exists
+        if (adminExists(email)) {
+            System.err.println("Admin with email " + email + " already exists");
+            return false;
+        }
+
+        String query = "INSERT INTO admins (email, name, password, age, phone_number) VALUES (?, ?, ?, ?, ?)";
+        
+        try {
+            boolean result = Connect.executeUpdate(query, email, name, password, age, phoneNumber);
+            if (result) {
+                System.out.println("Admin added successfully: " + name + " (" + email + ")");
+            } else {
+                System.err.println("Failed to add admin to database");
+            }
+            return result;
+        } catch (Exception e) {
+            System.err.println("Error adding admin: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Check if an admin with the given email already exists
+     */
+    public static boolean adminExists(String email) {
+        String query = "SELECT COUNT(*) FROM admins WHERE email = ?";
+        try {
+            int count = Connect.executeCount(query, email);
+            return count > 0;
+        } catch (Exception e) {
+            System.err.println("Error checking if admin exists: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Verify admin passcode (you can implement more sophisticated verification later)
+     */
+    public static boolean verifyPasscode(String passcode) {
+        // For now, using hardcoded passcode. You can implement database-stored passcodes later
+        return "admin123".equals(passcode);
+    }
 }

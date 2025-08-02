@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import project.Databases.Admin;
+import project.Databases.LibraryMember;
 import project.Utilities.AlertMsg;
 import project.Utilities.SwitchSceneUtil;
 
@@ -37,18 +38,27 @@ public class LogInController {
         }
 
         try {
+            // First try to authenticate as Admin
             Admin admin = Admin.authenticateAdmin(email, password);
             if (admin != null) {
-                
                 SwitchSceneUtil.currentUserEmail = email;
-                AlertMsg.showInformation("Success", "Welcome back, " + admin.getName() + "!");
-                
-                
+                AlertMsg.showInformation("Success", "Welcome back Admin, " + admin.getName() + "!");
                 SwitchSceneUtil.switchScene(event, "AdminMain.fxml", "AdminMain.css");
-            } else {
-                // Authentication failed
-                AlertMsg.showError("Login Failed", "Invalid email or password");
+                return;
             }
+
+            // If admin authentication fails, try member authentication
+            LibraryMember member = LibraryMember.AuthenticateMember(email, password);
+            if (member != null) {
+                SwitchSceneUtil.currentUserEmail = email;
+                AlertMsg.showInformation("Success", "Welcome back, " + member.getName() + "!");
+                SwitchSceneUtil.switchScene(event, "StudentMain.fxml", "StudentMain.css");
+                return;
+            }
+
+            // If both authentications fail
+            AlertMsg.showError("Login Failed", "Invalid email or password.\n\nPlease check your credentials and try again.");
+
         } catch (Exception e) {
             AlertMsg.showError("Error", "Login error: " + e.getMessage());
         }
@@ -66,7 +76,5 @@ public class LogInController {
     @FXML
     void Exit(ActionEvent event) {
         System.exit(0);
-
     }
-
 }

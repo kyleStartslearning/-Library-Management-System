@@ -80,8 +80,11 @@ public class CreateController {
             return;
         }
 
-        // TODO: Add database check for existing members
-        // For now, proceeding with member creation
+        // Check if user already exists in either table
+        if (LibraryMember.memberExists(Email) || Admin.adminExists(Email)) {
+            AlertMsg.showError("Email Already Exists", "An account with this email already exists. Please use a different email address.");
+            return;
+        }
 
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmationAlert.setTitle("Confirm Registration");
@@ -100,11 +103,15 @@ public class CreateController {
             Optional<ButtonType> accountTypeResult = accountTypeAlert.showAndWait();
             if (accountTypeResult.isPresent()) {
                 if (accountTypeResult.get() == memberButton) {
-                    // TODO: Add member to database
-                    // For now, just show success and navigate
-                    SwitchSceneUtil.currentUserEmail = Email;
-                    AlertMsg.showInformation("Success", "Member account created successfully!");
-                    SwitchSceneUtil.switchScene(event, "LogIn.fxml", "LogIn.css");
+                    // Add member to database
+                    boolean memberAdded = LibraryMember.addMember(Email, Name, Password, age, Number);
+                    if (memberAdded) {
+                        SwitchSceneUtil.currentUserEmail = Email;
+                        AlertMsg.showInformation("Success", "Member account created successfully!\n\nYou can now log in with your credentials.");
+                        SwitchSceneUtil.switchScene(event, "LogIn.fxml", "LogIn.css");
+                    } else {
+                        AlertMsg.showError("Registration Failed", "Failed to create member account. Please try again.");
+                    }
                 } else if (accountTypeResult.get() == adminButton) {
                     Alert adminPasscodeAlert = new Alert(Alert.AlertType.CONFIRMATION);
                     adminPasscodeAlert.setTitle("Admin Verification");
@@ -115,12 +122,17 @@ public class CreateController {
 
                     Optional<ButtonType> passcodeResult = adminPasscodeAlert.showAndWait();
                     if (passcodeResult.isPresent() && passcodeResult.get() == ButtonType.OK) {
-                        // TODO: Implement Admin.VerifyPasscode and Admin.addAdmin methods
                         String passcode = passcodeField.getText().trim();
-                        if (passcode.equals("admin123")) { // Temporary hardcoded passcode
-                            SwitchSceneUtil.currentUserEmail = Email;
-                            AlertMsg.showInformation("Success", "Admin account created successfully!");
-                            SwitchSceneUtil.switchScene(event, "AdminMain.fxml", "AdminMain.css");
+                        if (Admin.verifyPasscode(passcode)) {
+                            // Add admin to database
+                            boolean adminAdded = Admin.addAdmin(Email, Name, Password, age, Number);
+                            if (adminAdded) {
+                                SwitchSceneUtil.currentUserEmail = Email;
+                                AlertMsg.showInformation("Success", "Admin account created successfully!\n\nWelcome to the admin panel.");
+                                SwitchSceneUtil.switchScene(event, "AdminMain.fxml", "AdminMain.css");
+                            } else {
+                                AlertMsg.showError("Registration Failed", "Failed to create admin account. Please try again.");
+                            }
                         } else {
                             AlertMsg.showError("Invalid Passcode", "The admin passcode is incorrect");
                         }

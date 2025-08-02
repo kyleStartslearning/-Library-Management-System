@@ -1,0 +1,11 @@
+.button:hover {
+    -fx-background-color: #0478cc !important;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 4) !important;
+    -fx-cursor: hand;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.button {
+    -fx-transition: all 0.2s ease-in-out;
+}
