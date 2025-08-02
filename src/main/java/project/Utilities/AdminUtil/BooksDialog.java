@@ -1,6 +1,5 @@
 package project.Utilities.AdminUtil;
 
-import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -17,6 +16,8 @@ import javafx.geometry.Insets;
 import project.Databases.Book;
 import project.Utilities.AlertMsg;
 import project.Utilities.SwitchSceneUtil;
+import project.Utilities.UIUtil;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -44,25 +45,11 @@ public class BooksDialog {
      */
     public static BookData showAddBookDialog() {
         Dialog<BookData> dialog = new Dialog<>();
+        UIUtil.setupDialog(dialog, "Enter book information:");
         
-        // Remove title and X button, but KEEP headerText
-        dialog.setTitle(null);
-        dialog.setHeaderText("Enter book information:");
-        
-        // Make the dialog undecorated (removes title bar and X button)
-        dialog.setOnShowing(e -> {
-            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
-        });
-        
-        // Set button types
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         
-        // Create form fields
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
+        GridPane grid = UIUtil.createDialogGrid();
         
         TextField titleField = new TextField();
         titleField.setPromptText("Book Title");
@@ -76,9 +63,7 @@ public class BooksDialog {
         copiesField.setPromptText("Number of Copies");
         copiesField.setPrefWidth(250);
         
-        String userInfo = SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com";
-        Label adminLabel = new Label("Adding as: " + userInfo + " (ADMIN)");
-        adminLabel.setStyle("-fx-text-fill: #0598ff; -fx-font-size: 12px; -fx-font-weight: bold;");
+        Label adminLabel = UIUtil.createUserLabel("Adding", "admin");
         
         copiesField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
@@ -95,14 +80,6 @@ public class BooksDialog {
         grid.add(copiesField, 1, 3);
         
         dialog.getDialogPane().setContent(grid);
-        
-        dialog.getDialogPane().setStyle(
-            "-fx-border-color: #0598ff; " +
-            "-fx-border-width: 2px; " +
-            "-fx-border-radius: 5px; " +
-            "-fx-background-radius: 5px;"
-        );
-        
         titleField.requestFocus();
         
         javafx.scene.control.Button okButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
@@ -128,10 +105,9 @@ public class BooksDialog {
                         AlertMsg.showError("Validation Error", "Number of copies must be greater than 0!");
                         event.consume();
                     } else {
-                        // Show confirmation dialog
                         boolean confirmed = showBookConfirmationDialog(title, author, copies);
                         if (!confirmed) {
-                            event.consume(); // Stay in the dialog if not confirmed
+                            event.consume();
                         }
                     }
                 } catch (NumberFormatException e) {
@@ -174,8 +150,7 @@ public class BooksDialog {
      */
     public static boolean showBookConfirmationDialog(String title, String author, int copies) {
         Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Confirm Add Book");
-        confirmAlert.setHeaderText("Do you really want to add this book?");
+        UIUtil.setupAlert(confirmAlert, "Do you really want to add this book?");
         
         String message = "📖 Title: " + title + "\n" +
                         "✍️ Author: " + author + "\n" +
@@ -184,7 +159,6 @@ public class BooksDialog {
         
         confirmAlert.setContentText(message);
         
-        // Customize buttons
         confirmAlert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
         ((javafx.scene.control.Button) confirmAlert.getDialogPane().lookupButton(ButtonType.YES)).setText("Confirm");
         ((javafx.scene.control.Button) confirmAlert.getDialogPane().lookupButton(ButtonType.NO)).setText("Cancel");
@@ -195,21 +169,11 @@ public class BooksDialog {
 
     public static void showRemoveBookDialog() {
         Dialog<Void> dialog = new Dialog<>();
-
-        dialog.setTitle(null);
-        dialog.setHeaderText("Search book to delete");
-
-        dialog.setOnShowing(e -> {
-            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
-        });
+        UIUtil.setupDangerDialog(dialog, "Search book to delete");
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
+        GridPane grid = UIUtil.createDialogGrid();
 
         TextField titleField = new TextField();
         titleField.setPromptText("Book Title (partial search allowed)");
@@ -219,9 +183,7 @@ public class BooksDialog {
         authorField.setPromptText("Author Name (partial search allowed)");
         authorField.setPrefWidth(250);
 
-        String userInfo = SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com";
-        Label adminLabel = new Label("Deleting as: " + userInfo + " (ADMIN)");
-        adminLabel.setStyle("-fx-text-fill: #ff0000; -fx-font-size: 12px; -fx-font-weight: bold;");
+        Label adminLabel = UIUtil.createDangerUserLabel("Deleting", "admin");
 
         grid.add(adminLabel, 0, 0, 2, 1);
         grid.add(new Label("Title:"), 0, 1);
@@ -230,14 +192,6 @@ public class BooksDialog {
         grid.add(authorField, 1, 2);
 
         dialog.getDialogPane().setContent(grid);
-        
-        dialog.getDialogPane().setStyle(
-            "-fx-border-color: #ff0000; " +
-            "-fx-border-width: 2px; " +
-            "-fx-border-radius: 5px; " +
-            "-fx-background-radius: 5px;"
-        );
-
         titleField.requestFocus();
 
         javafx.scene.control.Button okButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
@@ -252,7 +206,6 @@ public class BooksDialog {
                 return;
             }
 
-            // Search for books
             List<Book> foundBooks = Book.searchBooksForDeletion(title, author);
             
             if (foundBooks.isEmpty()) {
@@ -261,21 +214,18 @@ public class BooksDialog {
                 return;
             }
 
-            // Show book selection dialog
             Book selectedBook = showBookSelectionDialog(foundBooks);
             if (selectedBook == null) {
-                event.consume(); // User cancelled selection
+                event.consume();
                 return;
             }
 
-            // Show confirmation dialog
             boolean confirmed = showDeleteConfirmationDialog(selectedBook);
             if (!confirmed) {
                 event.consume();
                 return;
             }
 
-            // Delete the book
             boolean deleted = Book.deleteBookById(selectedBook.getId());
             if (deleted) {
                 AlertMsg.showInformation("Success", "Book deleted successfully!\n\n" +
@@ -288,10 +238,7 @@ public class BooksDialog {
             }
         });
 
-        dialog.setResultConverter(dialogButton -> {
-            return null; // We handle everything in the event filter
-        });
-
+        dialog.setResultConverter(dialogButton -> null);
         dialog.showAndWait();
     }
 
@@ -300,36 +247,17 @@ public class BooksDialog {
      */
     public static Book showBookSelectionDialog(List<Book> books) {
         Dialog<Book> dialog = new Dialog<>();
+        UIUtil.setupDangerDialog(dialog, "Select the book you want to delete:");
 
-        dialog.setTitle(null);
-        dialog.setHeaderText("Select the book you want to delete:");
-
-        dialog.setOnShowing(e -> {
-            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
-        });
-
-         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        
-
-        dialog.getDialogPane().setStyle(
-            "-fx-border-color: #ff0000; " +
-            "-fx-border-width: 2px; " +
-            "-fx-border-radius: 5px; " +
-            "-fx-background-radius: 5px;"
-        );
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         VBox vbox = new VBox(10);
         vbox.setPadding(new Insets(20));
 
-        // Add header label with column titles
-        Label headerLabel = new Label("ID    | TITLE                           | AUTHOR                     | TOTAL | AVAILABLE");
-        headerLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #ff0000;");
+        Label headerLabel = UIUtil.createTableHeader("ID    | TITLE                           | AUTHOR                     | TOTAL | AVAILABLE", UIUtil.DANGER_COLOR);
         vbox.getChildren().add(headerLabel);
         
-        // Add separator label
-        Label separatorLabel = new Label("─────┼─────────────────────────────────┼────────────────────────────┼───────┼──────────");
-        separatorLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-text-fill: #cccccc;");
+        Label separatorLabel = UIUtil.createTableSeparator("─────┼─────────────────────────────────┼────────────────────────────┼───────┼──────────");
         vbox.getChildren().add(separatorLabel);
 
         ToggleGroup toggleGroup = new ToggleGroup();
@@ -343,18 +271,18 @@ public class BooksDialog {
             // Create formatted book info with proper spacing
             String bookInfo = String.format("%-5d | %-31s | %-26s | %-5d | %-9d",
                 book.getId(), 
-                truncateString(book.getTitle(), 31), 
-                truncateString(book.getAuthor(), 26), 
+                UIUtil.truncateString(book.getTitle(), 31), 
+                UIUtil.truncateString(book.getAuthor(), 26), 
                 book.getTotalCopies(), 
                 book.getAvailableCopies());
             
             radioButton.setText(bookInfo);
-            radioButton.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px;");
+            radioButton.setStyle(UIUtil.MONOSPACE_STYLE + " -fx-font-size: 12px;");
             vbox.getChildren().add(radioButton);
         }
 
         ScrollPane scrollPane = new ScrollPane(vbox);
-        scrollPane.setPrefSize(700, 350); // Increased width for better spacing
+        scrollPane.setPrefSize(700, 350);
         scrollPane.setFitToWidth(true);
 
         dialog.getDialogPane().setContent(scrollPane);
@@ -386,19 +314,12 @@ public class BooksDialog {
         confirmAlert.setTitle(null);
         confirmAlert.setHeaderText("⚠️ Are you sure you want to delete this book?");
 
-        // Make the dialog undecorated (removes title bar and X button)
         confirmAlert.setOnShowing(e -> {
             Stage stage = (Stage) confirmAlert.getDialogPane().getScene().getWindow();
             stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
         });
         
-        // Apply the same styling as ShowBookSelectionDialog
-        confirmAlert.getDialogPane().setStyle(
-            "-fx-border-color: #ff0000; " +
-            "-fx-border-width: 2px; " +
-            "-fx-border-radius: 5px; " +
-            "-fx-background-radius: 5px;"
-        );
+        confirmAlert.getDialogPane().setStyle(UIUtil.DANGER_DIALOG_STYLE);
         
         String message = "🆔 Book ID: " + book.getId() + "\n" +
                         "📖 Title: " + book.getTitle() + "\n" +
@@ -410,7 +331,6 @@ public class BooksDialog {
         
         confirmAlert.setContentText(message);
         
-        // Customize buttons
         confirmAlert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
         ((javafx.scene.control.Button) confirmAlert.getDialogPane().lookupButton(ButtonType.YES)).setText("Delete Book");
         ((javafx.scene.control.Button) confirmAlert.getDialogPane().lookupButton(ButtonType.NO)).setText("Cancel");
@@ -424,42 +344,22 @@ public class BooksDialog {
      */
     public static void showSearchBooksDialog() {
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle(null);
-        dialog.setHeaderText("Search Books by Title or Author");
-
-        dialog.setOnShowing(e -> {
-            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
-        });
+        UIUtil.setupDialog(dialog, "Search Books by Title or Author");
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
-
+        GridPane grid = UIUtil.createDialogGrid();
         TextField searchField = new TextField();
         searchField.setPromptText("Enter book title or author name");
         searchField.setPrefWidth(300);
 
-        String userInfo = SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com";
-        Label adminLabel = new Label("Searching as: " + userInfo + " (ADMIN)");
-        adminLabel.setStyle("-fx-text-fill: #0598ff; -fx-font-size: 12px; -fx-font-weight: bold;");
+        Label adminLabel = UIUtil.createUserLabel("Searching", "admin");
 
         grid.add(adminLabel, 0, 0, 2, 1);
         grid.add(new Label("Search Term:"), 0, 1);
         grid.add(searchField, 1, 1);
 
         dialog.getDialogPane().setContent(grid);
-        
-        dialog.getDialogPane().setStyle(
-            "-fx-border-color: #0598ff; " +
-            "-fx-border-width: 2px; " +
-            "-fx-border-radius: 5px; " +
-            "-fx-background-radius: 5px;"
-        );
-
         searchField.requestFocus();
         
         javafx.scene.control.Button okButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
@@ -473,7 +373,6 @@ public class BooksDialog {
                 return;
             }
 
-            // Search for books using the existing searchBooks method
             List<Book> foundBooks = Book.searchBooks(searchTerm);
             
             if (foundBooks.isEmpty()) {
@@ -488,11 +387,9 @@ public class BooksDialog {
                 return;
             }
 
-            // Show search results - UPDATED TO USE SearchDialogs
             SearchDialogs.showSearchResultsDialog(foundBooks, searchTerm);
         });
 
-        // Allow Enter key to trigger search
         searchField.setOnAction(e -> okButton.fire());
 
         dialog.setResultConverter(dialogButton -> null);
@@ -503,22 +400,14 @@ public class BooksDialog {
      * Show all books in the library in a formatted dialog
      */
     public static void showAllBooksDialog() {
-        // Get all books from the database
         List<Book> allBooks = Book.getAllBooks();
         
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle(null);
-        dialog.setHeaderText("📚 All Library Books (" + allBooks.size() + " books total)");
-
-        dialog.setOnShowing(e -> {
-            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
-        });
+        UIUtil.setupDialog(dialog, "📚 All Library Books (" + allBooks.size() + " books total)");
 
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
 
         if (allBooks.isEmpty()) {
-            // Show empty state
             VBox emptyVBox = new VBox(20);
             emptyVBox.setPadding(new Insets(40));
             
@@ -534,14 +423,10 @@ public class BooksDialog {
             VBox vbox = new VBox(10);
             vbox.setPadding(new Insets(20));
 
-            // Add header with column titles
-            Label headerLabel = new Label("ID    | TITLE                           | AUTHOR                     | TOTAL | AVAILABLE | BORROWED | STATUS");
-            headerLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0598ff;");
+            Label headerLabel = UIUtil.createTableHeader("ID    | TITLE                           | AUTHOR                     | TOTAL | AVAILABLE | BORROWED | STATUS", UIUtil.PRIMARY_COLOR);
             vbox.getChildren().add(headerLabel);
             
-            // Add separator line
-            Label separatorLabel = new Label("─────┼─────────────────────────────────┼────────────────────────────┼───────┼───────────┼──────────┼──────────");
-            separatorLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-text-fill: #cccccc;");
+            Label separatorLabel = UIUtil.createTableSeparator("─────┼─────────────────────────────────┼────────────────────────────┼───────┼───────────┼──────────┼──────────");
             vbox.getChildren().add(separatorLabel);
 
             // Add each book
@@ -551,36 +436,31 @@ public class BooksDialog {
                 
                 String bookInfo = String.format("%-5d | %-31s | %-26s | %-5d | %-9d | %-8d | %s",
                     book.getId(),
-                    truncateString(book.getTitle(), 31),
-                    truncateString(book.getAuthor(), 26),
+                    UIUtil.truncateString(book.getTitle(), 31),
+                    UIUtil.truncateString(book.getAuthor(), 26),
                     book.getTotalCopies(),
                     book.getAvailableCopies(),
                     borrowedCopies,
                     status);
                 
                 Label bookLabel = new Label(bookInfo);
-                bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px;");
+                bookLabel.setStyle(UIUtil.MONOSPACE_STYLE + " -fx-font-size: 11px; -fx-padding: 2px 0px;");
                 
-                // Add hover effect
-                bookLabel.setOnMouseEntered(e -> 
-                    bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #f0f8ff;"));
-                bookLabel.setOnMouseExited(e -> 
-                    bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px;"));
+                UIUtil.applyHoverEffect(bookLabel, 
+                    UIUtil.MONOSPACE_STYLE + " -fx-font-size: 11px; -fx-padding: 2px 0px;", 
+                    "#f0f8ff");
                 
-                // Highlight unavailable books
                 if (book.getAvailableCopies() == 0) {
-                    bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #ffe6e6; -fx-text-fill: #cc0000;");
+                    bookLabel.setStyle(UIUtil.MONOSPACE_STYLE + " -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #ffe6e6; -fx-text-fill: " + UIUtil.DANGER_COLOR + ";");
                     
-                    bookLabel.setOnMouseEntered(e -> 
-                        bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #ffcccc; -fx-text-fill: #cc0000;"));
-                    bookLabel.setOnMouseExited(e -> 
-                        bookLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #ffe6e6; -fx-text-fill: #cc0000;"));
+                    UIUtil.applyHoverEffect(bookLabel, 
+                        UIUtil.MONOSPACE_STYLE + " -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #ffe6e6; -fx-text-fill: " + UIUtil.DANGER_COLOR + ";", 
+                        "#ffcccc");
                 }
                 
                 vbox.getChildren().add(bookLabel);
             }
 
-            // Add summary statistics
             int totalBooks = allBooks.size();
             int totalCopies = allBooks.stream().mapToInt(Book::getTotalCopies).sum();
             int availableCopies = allBooks.stream().mapToInt(Book::getAvailableCopies).sum();
@@ -594,44 +474,24 @@ public class BooksDialog {
                 "   ✅ Available: %d copies (%d books) | 📖 Borrowed: %d copies\n" +
                 "   ❌ Out of Stock: %d books",
                 totalBooks, totalCopies, availableCopies, availableBooks, borrowedCopies, outOfStockBooks));
-            summaryLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #0598ff; -fx-font-size: 14px;");
+            summaryLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: " + UIUtil.PRIMARY_COLOR + "; -fx-font-size: 14px;");
             vbox.getChildren().add(summaryLabel);
 
-            // Add view information
-            String userInfo = SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com";
-            Label viewInfoLabel = new Label("\n👤 Viewing as: " + userInfo + " (ADMIN)");
+            Label viewInfoLabel = UIUtil.createUserLabel("\n👤 Viewing", "admin");
             viewInfoLabel.setStyle("-fx-font-style: italic; -fx-text-fill: #666666; -fx-font-size: 12px;");
             vbox.getChildren().add(viewInfoLabel);
 
             ScrollPane scrollPane = new ScrollPane(vbox);
-            scrollPane.setPrefSize(900, 600); // Increased width for the status column
+            scrollPane.setPrefSize(900, 600);
             scrollPane.setFitToWidth(true);
 
             dialog.getDialogPane().setContent(scrollPane);
         }
-        
-        // Apply consistent styling
-        dialog.getDialogPane().setStyle(
-            "-fx-border-color: #0598ff; " +
-            "-fx-border-width: 2px; " +
-            "-fx-border-radius: 5px; " +
-            "-fx-background-radius: 5px;"
-        );
 
-        // Customize close button
         javafx.scene.control.Button closeButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.CLOSE);
         closeButton.setText("Close");
-        closeButton.setStyle("-fx-background-color: #0598ff; -fx-text-fill: white; -fx-font-weight: bold;");
+        closeButton.setStyle("-fx-background-color: " + UIUtil.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-font-weight: bold;");
 
         dialog.showAndWait();
-    }
-
-    /**
-     * Helper method to truncate strings that are too long for display
-     */
-    private static String truncateString(String str, int maxLength) {
-        if (str == null) return "";
-        if (str.length() <= maxLength) return str;
-        return str.substring(0, maxLength - 3) + "...";
     }
 }

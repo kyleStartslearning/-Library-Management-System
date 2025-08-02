@@ -14,8 +14,8 @@ import project.Utilities.AlertMsg;
 import project.Utilities.SwitchSceneUtil;
 import project.Utilities.AdminUtil.BooksDialog;
 import project.Utilities.AdminUtil.MembersDialog;
-import project.Utilities.AdminUtil.SearchDialogs; // ADD THIS IMPORT
-import project.Utilities.AdminUtil.borrowedBooks; // ADD THIS IMPORT
+import project.Utilities.AdminUtil.SearchDialogs;
+import project.Utilities.AdminUtil.borrowedBooks;
 
 import java.net.URL;
 import java.util.ResourceBundle;

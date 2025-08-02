@@ -28,8 +28,6 @@ public class Connect {
 
     public Connection getConnection() {
         try {
-            boolean isNewDatabase = !databaseExists();
-            
             if (connection == null || connection.isClosed()) {
                 connection = DriverManager.getConnection(DB_URL);
                 System.out.println("Connected to SQLite database: My.db");

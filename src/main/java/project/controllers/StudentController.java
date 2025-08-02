@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import project.Utilities.SwitchSceneUtil;
+import project.Utilities.memberUtil.BorrowReturn;
 import project.Databases.LibraryMember;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -36,12 +37,12 @@ public class StudentController implements Initializable {
 
     @FXML
     void BTNborrowReturn(ActionEvent event) {
-        // TODO: Implement borrow/return functionality
+        BorrowReturn.showBorrowReturnMainDialog();
     }
 
     @FXML
     void BTNsearch(ActionEvent event) {
-        // TODO: Implement search functionality
+        BorrowReturn.showSearchBooksDialog();
     }
 
     @FXML

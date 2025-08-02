@@ -1,8 +1,6 @@
 package project.Databases;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -20,9 +18,6 @@ public class Book {
     private String addedByEmail;
     private String addedByType; // 'admin' or 'member'
     private Timestamp createdAt;
-    private String updatedByEmail;
-    private String updatedByType;
-    private Timestamp updatedAt;
 
     // Constructors
     public Book() {}

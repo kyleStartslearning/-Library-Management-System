@@ -12,6 +12,7 @@ import project.Databases.Admin;
 import project.Databases.LibraryMember;
 import project.Utilities.AlertMsg;
 import project.Utilities.SwitchSceneUtil;
+import project.Utilities.UIUtil; // ADD THIS IMPORT
 
 public class CreateController {
 
@@ -87,15 +88,13 @@ public class CreateController {
         }
 
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmationAlert.setTitle("Confirm Registration");
-        confirmationAlert.setHeaderText("Are you sure you want to create this account?");
+        UIUtil.setupAlert(confirmationAlert, "Are you sure you want to create this account?"); // USING UIUtil
         confirmationAlert.setContentText("Name: " + Name + "\nEmail: " + Email + "\nAge: " + age + "\nPhone Number: " + Number);
         
         Optional<ButtonType> result = confirmationAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             Alert accountTypeAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            accountTypeAlert.setTitle("Select Account Type");
-            accountTypeAlert.setHeaderText("Please select the type of account you want to create:");
+            UIUtil.setupAlert(accountTypeAlert, "Please select the type of account you want to create:"); // USING UIUtil
             ButtonType memberButton = new ButtonType("Member");
             ButtonType adminButton = new ButtonType("Admin");
             accountTypeAlert.getButtonTypes().setAll(memberButton, adminButton);
@@ -114,8 +113,7 @@ public class CreateController {
                     }
                 } else if (accountTypeResult.get() == adminButton) {
                     Alert adminPasscodeAlert = new Alert(Alert.AlertType.CONFIRMATION);
-                    adminPasscodeAlert.setTitle("Admin Verification");
-                    adminPasscodeAlert.setHeaderText("Enter Admin Passcode:");
+                    UIUtil.setupAlert(adminPasscodeAlert, "Enter Admin Passcode:"); // USING UIUtil
                     TextField passcodeField = new TextField();
                     passcodeField.setPromptText("Enter admin passcode");
                     adminPasscodeAlert.getDialogPane().setContent(passcodeField);

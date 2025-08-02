@@ -17,9 +17,11 @@ import project.Databases.Admin;
 import project.Databases.LibraryMember;
 import project.Utilities.AlertMsg;
 import project.Utilities.SwitchSceneUtil;
+import project.Utilities.UIUtil;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
 public class MembersDialog {
 
@@ -27,141 +29,132 @@ public class MembersDialog {
      * Show all members and admins in a dialog with detailed information
      */
     public static void showAllMembersDialog(List<LibraryMember> members) {
-        // Get all admins as well
-        List<Admin> admins = Admin.ViewAllAdmins();
-        
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle(null);
-        dialog.setHeaderText("📋 All Library Users (" + admins.size() + " admins, " + members.size() + " members)");
-
-        // Make dialog undecorated
-        dialog.setOnShowing(e -> {
-            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
-        });
+        UIUtil.setupDialog(dialog, "📋 All Library Members & Admins (" + members.size() + " total)");
 
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
 
-        VBox vbox = new VBox(15);
+        VBox vbox = new VBox(10);
         vbox.setPadding(new Insets(20));
 
-        // ADMIN ACCOUNTS SECTION
+        // Get admins separately and convert to LibraryMember objects
+        List<Admin> adminList = Admin.ViewAllAdmins();
+        List<LibraryMember> admins = convertAdminsToLibraryMembers(adminList);
+        List<LibraryMember> regularMembers = members;
+
+        // MEMBERS SECTION
+        if (!regularMembers.isEmpty()) {
+            Label memberSectionLabel = new Label("👥 LIBRARY MEMBERS (" + regularMembers.size() + " total)");
+            memberSectionLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + UIUtil.PRIMARY_COLOR + "; -fx-padding: 10px 0px;");
+            vbox.getChildren().add(memberSectionLabel);
+
+            // Add member header with column titles using UIUtil
+            Label memberHeaderLabel = UIUtil.createTableHeader(
+                "EMAIL                           | NAME                     | AGE | PHONE         | CREATED AT", 
+                UIUtil.PRIMARY_COLOR);
+            vbox.getChildren().add(memberHeaderLabel);
+            
+            // Add member separator label using UIUtil
+            Label memberSeparatorLabel = UIUtil.createTableSeparator(
+                "─────────────────────────────────┼────────────────────────────┼─────┼───────────────┼──────────────");
+            vbox.getChildren().add(memberSeparatorLabel);
+
+            // Add each member
+            for (LibraryMember member : regularMembers) {
+                String memberInfo = String.format("%-31s | %-26s | %-3d | %-13s | %s",
+                    UIUtil.truncateString(member.getEmail(), 31),
+                    UIUtil.truncateString(member.getName(), 26),
+                    member.getAge(),
+                    UIUtil.truncateString(member.getPhoneNumber(), 13), // Fixed method name
+                    member.getCreatedAt().toString().substring(0, 10));
+                
+                Label memberLabel = new Label(memberInfo);
+                memberLabel.setStyle(UIUtil.MONOSPACE_STYLE + " -fx-font-size: 11px; -fx-padding: 2px 0px;");
+                
+                // Add hover effect using UIUtil
+                UIUtil.applyHoverEffect(memberLabel, 
+                    UIUtil.MONOSPACE_STYLE + " -fx-font-size: 11px; -fx-padding: 2px 0px;", 
+                    "#f0f8ff");
+                
+                vbox.getChildren().add(memberLabel);
+            }
+        }
+
+        // ADMINS SECTION
         if (!admins.isEmpty()) {
             Label adminSectionLabel = new Label("🔧 ADMIN ACCOUNTS (" + admins.size() + " total)");
-            adminSectionLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #ff6b35; -fx-padding: 10px 0px;");
+            adminSectionLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + UIUtil.WARNING_COLOR + "; -fx-padding: 10px 0px;");
             vbox.getChildren().add(adminSectionLabel);
 
-            // Add admin header with column titles
-            Label adminHeaderLabel = new Label("EMAIL                           | NAME                     | AGE | PHONE         | CREATED AT");
-            adminHeaderLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #ff6b35;");
+            // Add admin header with column titles using UIUtil
+            Label adminHeaderLabel = UIUtil.createTableHeader(
+                "EMAIL                           | NAME                     | AGE | PHONE         | CREATED AT", 
+                UIUtil.WARNING_COLOR);
             vbox.getChildren().add(adminHeaderLabel);
             
-            // Add admin separator label
-            Label adminSeparatorLabel = new Label("─────────────────────────────────┼──────────────────────────┼─────┼───────────────┼────────────────────");
-            adminSeparatorLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-text-fill: #cccccc;");
+            // Add admin separator label using UIUtil
+            Label adminSeparatorLabel = UIUtil.createTableSeparator(
+                "─────────────────────────────────┼────────────────────────────┼─────┼───────────────┼──────────────");
             vbox.getChildren().add(adminSeparatorLabel);
 
             // Add each admin
-            for (Admin admin : admins) {
-                String createdAtStr = admin.getCreatedAt() != null ? 
-                    admin.getCreatedAt().toString().substring(0, 19) : "Unknown";
-                
-                String adminInfo = String.format("%-31s | %-24s | %-3d | %-13s | %s",
-                    truncateString(admin.getEmail(), 31),
-                    truncateString(admin.getName(), 24),
+            for (LibraryMember admin : admins) {
+                String adminInfo = String.format("%-31s | %-26s | %-3d | %-13s | %s",
+                    UIUtil.truncateString(admin.getEmail(), 31),
+                    UIUtil.truncateString(admin.getName(), 26),
                     admin.getAge(),
-                    truncateString(admin.getPhoneNumber(), 13),
-                    createdAtStr);
+                    UIUtil.truncateString(admin.getPhoneNumber(), 13), // Fixed method name
+                    admin.getCreatedAt().toString().substring(0, 10));
                 
                 Label adminLabel = new Label(adminInfo);
-                adminLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #fff5f5;");
+                adminLabel.setStyle(UIUtil.MONOSPACE_STYLE + " -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-text-fill: " + UIUtil.WARNING_COLOR + ";");
                 
-                // Add hover effect for admins
-                adminLabel.setOnMouseEntered(e -> 
-                    adminLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #ffe6e6;"));
-                adminLabel.setOnMouseExited(e -> 
-                    adminLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #fff5f5;"));
+                // Add hover effect using UIUtil
+                UIUtil.applyHoverEffect(adminLabel, 
+                    UIUtil.MONOSPACE_STYLE + " -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-text-fill: " + UIUtil.WARNING_COLOR + ";", 
+                    "#fff3cd");
                 
                 vbox.getChildren().add(adminLabel);
             }
         }
 
-        // Add spacing between sections
-        Label spacingLabel = new Label("");
-        spacingLabel.setStyle("-fx-padding: 10px 0px;");
-        vbox.getChildren().add(spacingLabel);
-
-        // MEMBER ACCOUNTS SECTION
-        Label memberSectionLabel = new Label("👥 MEMBER ACCOUNTS (" + members.size() + " total)");
-        memberSectionLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0598ff; -fx-padding: 10px 0px;");
-        vbox.getChildren().add(memberSectionLabel);
-
-        if (!members.isEmpty()) {
-            // Add member header with column titles
-            Label memberHeaderLabel = new Label("EMAIL                           | NAME                     | AGE | PHONE         | CREATED AT");
-            memberHeaderLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0598ff;");
-            vbox.getChildren().add(memberHeaderLabel);
-            
-            // Add member separator line
-            Label memberSeparatorLabel = new Label("─────────────────────────────────┼──────────────────────────┼─────┼───────────────┼────────────────────");
-            memberSeparatorLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-text-fill: #cccccc;");
-            vbox.getChildren().add(memberSeparatorLabel);
-
-            // Add each member
-            for (LibraryMember member : members) {
-                String createdAtStr = member.getCreatedAt() != null ? 
-                    member.getCreatedAt().toString().substring(0, 19) : "Unknown";
-                
-                String memberInfo = String.format("%-31s | %-24s | %-3d | %-13s | %s",
-                    truncateString(member.getEmail(), 31),
-                    truncateString(member.getName(), 24),
-                    member.getAge(),
-                    truncateString(member.getPhoneNumber(), 13),
-                    createdAtStr);
-                
-                Label memberLabel = new Label(memberInfo);
-                memberLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px;");
-                
-                // Add hover effect for members
-                memberLabel.setOnMouseEntered(e -> 
-                    memberLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px; -fx-background-color: #f0f8ff;"));
-                memberLabel.setOnMouseExited(e -> 
-                    memberLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-padding: 2px 0px;"));
-                
-                vbox.getChildren().add(memberLabel);
-            }
-        } else {
-            Label noMembersLabel = new Label("No members found in the system.");
-            noMembersLabel.setStyle("-fx-font-style: italic; -fx-text-fill: #888888; -fx-font-size: 12px;");
-            vbox.getChildren().add(noMembersLabel);
-        }
-
-        // Add summary at bottom
-        Label summaryLabel = new Label("\n📊 Total Users: " + (admins.size() + members.size()) + 
-                                      " (" + admins.size() + " admins + " + members.size() + " members)");
-        summaryLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #333333; -fx-font-size: 14px;");
+        // Add summary statistics
+        Label summaryLabel = new Label(String.format(
+            "\n📊 User Statistics:\n" +
+            "   👥 Total Members: %d\n" +
+            "   🔧 Total Admins: %d\n" +
+            "   📈 Total Users: %d",
+            regularMembers.size(), admins.size(), regularMembers.size() + admins.size()));
+        summaryLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: " + UIUtil.PRIMARY_COLOR + "; -fx-font-size: 14px;");
         vbox.getChildren().add(summaryLabel);
 
         ScrollPane scrollPane = new ScrollPane(vbox);
-        scrollPane.setPrefSize(800, 600); // Increased height for both sections
+        scrollPane.setPrefSize(800, 500);
         scrollPane.setFitToWidth(true);
 
         dialog.getDialogPane().setContent(scrollPane);
-        
-        // Apply consistent styling
-        dialog.getDialogPane().setStyle(
-            "-fx-border-color: #0598ff; " +
-            "-fx-border-width: 2px; " +
-            "-fx-border-radius: 5px; " +
-            "-fx-background-radius: 5px;"
-        );
 
-        // Customize close button
         javafx.scene.control.Button closeButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.CLOSE);
         closeButton.setText("Close");
-        closeButton.setStyle("-fx-background-color: #0598ff; -fx-text-fill: white; -fx-font-weight: bold;");
+        closeButton.setStyle("-fx-background-color: " + UIUtil.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-font-weight: bold;");
 
         dialog.showAndWait();
+    }
+
+    // Convert Admin objects to LibraryMember objects for consistent display
+    private static List<LibraryMember> convertAdminsToLibraryMembers(List<Admin> adminList) {
+        List<LibraryMember> libraryMembers = new ArrayList<>();
+        for (Admin admin : adminList) {
+            LibraryMember member = new LibraryMember();
+            member.setEmail(admin.getEmail());
+            member.setName(admin.getName());
+            member.setPassword(admin.getPassword());
+            member.setAge(admin.getAge());
+            member.setPhoneNumber(admin.getPhoneNumber());
+            member.setCreatedAt(admin.getCreatedAt());
+            libraryMembers.add(member);
+        }
+        return libraryMembers;
     }
 
     /**
@@ -169,21 +162,11 @@ public class MembersDialog {
      */
     public static void showRemoveMemberDialog() {
         Dialog<Void> dialog = new Dialog<>();
-
-        dialog.setTitle(null);
-        dialog.setHeaderText("Search member to delete");
-
-        dialog.setOnShowing(e -> {
-            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
-        });
+        UIUtil.setupDangerDialog(dialog, "Search member to delete");
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
+        GridPane grid = UIUtil.createDialogGrid();
 
         TextField emailField = new TextField();
         emailField.setPromptText("Member Email (exact match)");
@@ -193,9 +176,7 @@ public class MembersDialog {
         nameField.setPromptText("Member Name (partial search allowed)");
         nameField.setPrefWidth(250);
 
-        String userInfo = SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com";
-        Label adminLabel = new Label("Deleting as: " + userInfo + " (ADMIN)");
-        adminLabel.setStyle("-fx-text-fill: #ff0000; -fx-font-size: 12px; -fx-font-weight: bold;");
+        Label adminLabel = UIUtil.createDangerUserLabel("Deleting", "admin");
 
         grid.add(adminLabel, 0, 0, 2, 1);
         grid.add(new Label("Email:"), 0, 1);
@@ -204,14 +185,6 @@ public class MembersDialog {
         grid.add(nameField, 1, 2);
 
         dialog.getDialogPane().setContent(grid);
-        
-        dialog.getDialogPane().setStyle(
-            "-fx-border-color: #ff0000; " +
-            "-fx-border-width: 2px; " +
-            "-fx-border-radius: 5px; " +
-            "-fx-background-radius: 5px;"
-        );
-
         emailField.requestFocus();
 
         javafx.scene.control.Button okButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
@@ -262,10 +235,7 @@ public class MembersDialog {
             }
         });
 
-        dialog.setResultConverter(dialogButton -> {
-            return null; // We handle everything in the event filter
-        });
-
+        dialog.setResultConverter(dialogButton -> null);
         dialog.showAndWait();
     }
 
@@ -274,35 +244,22 @@ public class MembersDialog {
      */
     public static LibraryMember showMemberSelectionDialog(List<LibraryMember> members) {
         Dialog<LibraryMember> dialog = new Dialog<>();
-
-        dialog.setTitle(null);
-        dialog.setHeaderText("Select the member you want to delete:");
-
-        dialog.setOnShowing(e -> {
-            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
-        });
+        UIUtil.setupDangerDialog(dialog, "Select the member you want to delete:");
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        dialog.getDialogPane().setStyle(
-            "-fx-border-color: #ff0000; " +
-            "-fx-border-width: 2px; " +
-            "-fx-border-radius: 5px; " +
-            "-fx-background-radius: 5px;"
-        );
 
         VBox vbox = new VBox(10);
         vbox.setPadding(new Insets(20));
 
-        // Add header label with column titles
-        Label headerLabel = new Label("EMAIL                           | NAME                     | AGE | PHONE         | CREATED AT");
-        headerLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #ff0000;");
+        // Add header label with column titles using UIUtil
+        Label headerLabel = UIUtil.createTableHeader(
+            "EMAIL                           | NAME                     | AGE | PHONE         | CREATED AT", 
+            UIUtil.DANGER_COLOR);
         vbox.getChildren().add(headerLabel);
         
-        // Add separator label
-        Label separatorLabel = new Label("─────────────────────────────────┼──────────────────────────┼─────┼───────────────┼────────────────────");
-        separatorLabel.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-text-fill: #cccccc;");
+        // Add separator label using UIUtil
+        Label separatorLabel = UIUtil.createTableSeparator(
+            "─────────────────────────────────┼──────────────────────────┼─────┼───────────────┼────────────────────");
         vbox.getChildren().add(separatorLabel);
 
         ToggleGroup toggleGroup = new ToggleGroup();
@@ -316,16 +273,16 @@ public class MembersDialog {
             String createdAtStr = member.getCreatedAt() != null ? 
                 member.getCreatedAt().toString().substring(0, 19) : "Unknown";
             
-            // Create formatted member info with proper spacing
+            // Create formatted member info with proper spacing using UIUtil
             String memberInfo = String.format("%-31s | %-24s | %-3d | %-13s | %s",
-                truncateString(member.getEmail(), 31),
-                truncateString(member.getName(), 24),
+                UIUtil.truncateString(member.getEmail(), 31),
+                UIUtil.truncateString(member.getName(), 24),
                 member.getAge(),
-                truncateString(member.getPhoneNumber(), 13),
+                UIUtil.truncateString(member.getPhoneNumber(), 13), // Fixed method name
                 createdAtStr);
             
             radioButton.setText(memberInfo);
-            radioButton.setStyle("-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px;");
+            radioButton.setStyle(UIUtil.MONOSPACE_STYLE + " -fx-font-size: 12px;");
             vbox.getChildren().add(radioButton);
         }
 
@@ -362,19 +319,13 @@ public class MembersDialog {
         confirmAlert.setTitle(null);
         confirmAlert.setHeaderText("⚠️ Are you sure you want to delete this member?");
 
-        // Make the dialog undecorated (removes title bar and X button)
         confirmAlert.setOnShowing(e -> {
             Stage stage = (Stage) confirmAlert.getDialogPane().getScene().getWindow();
             stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
         });
         
-        // Apply the same styling
-        confirmAlert.getDialogPane().setStyle(
-            "-fx-border-color: #ff0000; " +
-            "-fx-border-width: 2px; " +
-            "-fx-border-radius: 5px; " +
-            "-fx-background-radius: 5px;"
-        );
+        // Use UIUtil for styling
+        confirmAlert.getDialogPane().setStyle(UIUtil.DANGER_DIALOG_STYLE);
         
         String createdAtStr = member.getCreatedAt() != null ? 
             member.getCreatedAt().toString().substring(0, 19) : "Unknown";
@@ -382,7 +333,7 @@ public class MembersDialog {
         String message = "👤 Name: " + member.getName() + "\n" +
                         "📧 Email: " + member.getEmail() + "\n" +
                         "🎂 Age: " + member.getAge() + "\n" +
-                        "📞 Phone: " + member.getPhoneNumber() + "\n" +
+                        "📞 Phone: " + member.getPhoneNumber() + "\n" + // Fixed method name
                         "📅 Created: " + createdAtStr + "\n" +
                         "🗑️ Deleted by: " + (SwitchSceneUtil.currentUserEmail != null ? SwitchSceneUtil.currentUserEmail : "admin@library.com") + "\n\n" +
                         "⚠️ This action cannot be undone!\n" +
@@ -400,11 +351,62 @@ public class MembersDialog {
     }
 
     /**
-     * Helper method to truncate strings that are too long for display
+     * Show dialog for searching members (both regular members and admins)
      */
-    private static String truncateString(String str, int maxLength) {
-        if (str == null) return "";
-        if (str.length() <= maxLength) return str;
-        return str.substring(0, maxLength - 3) + "...";
+    public static void showSearchMembersDialog() {
+        Dialog<Void> dialog = new Dialog<>();
+        UIUtil.setupDialog(dialog, "Search Library Members");
+
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        GridPane grid = UIUtil.createDialogGrid();
+        TextField searchField = new TextField();
+        searchField.setPromptText("Enter member name or email");
+        searchField.setPrefWidth(300);
+
+        Label adminLabel = UIUtil.createUserLabel("Searching", "admin");
+
+        grid.add(adminLabel, 0, 0, 2, 1);
+        grid.add(new Label("Search Term:"), 0, 1);
+        grid.add(searchField, 1, 1);
+
+        dialog.getDialogPane().setContent(grid);
+        searchField.requestFocus();
+        
+        javafx.scene.control.Button okButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        
+        okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+            String searchTerm = searchField.getText().trim();
+            
+            if (searchTerm.isEmpty()) {
+                AlertMsg.showError("Validation Error", "Please enter a search term!");
+                event.consume();
+                return;
+            }
+
+            // Use existing searchMembersForDeletion method for search functionality
+            List<LibraryMember> foundMembers = Admin.searchMembersForDeletion(searchTerm, searchTerm);
+            
+            if (foundMembers.isEmpty()) {
+                AlertMsg.showInformation("No Members Found", 
+                    "👥 No members found matching: '" + searchTerm + "'\n\n" +
+                    "Try searching with:\n" +
+                    "• Different spelling\n" +
+                    "• Full name or partial name\n" +
+                    "• Email address\n" +
+                    "• Different keywords");
+                event.consume();
+                return;
+            }
+
+            // Show search results using the existing method
+            showAllMembersDialog(foundMembers);
+        });
+
+        // Allow Enter key to trigger search
+        searchField.setOnAction(e -> okButton.fire());
+
+        dialog.setResultConverter(dialogButton -> null);
+        dialog.showAndWait();
     }
 }
